@@ -1,0 +1,151 @@
+{
+  "pageWidth": 1280,
+  "pageHeight": 900,
+  "viewport": { "width": 1280, "height": 800 },
+  "elements": [
+    {
+      "selector": "header > nav.navbar",
+      "tag": "nav",
+      "text": "",
+      "rendersText": false,
+      "box": { "x": 0, "y": 0, "width": 1280, "height": 72 },
+      "styles": {
+        "color": "rgb(28, 25, 23)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "effectiveBackground": "rgb(255, 255, 255)",
+        "fontSize": 14, "fontWeight": 500, "lineHeight": 22,
+        "paddingTop": 16, "paddingRight": 16, "paddingBottom": 16, "paddingLeft": 16,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 8, "borderTopRightRadius": 8,
+        "borderBottomLeftRadius": 8, "borderBottomRightRadius": 8
+      }
+    },
+    {
+      "selector": "main > section.hero > h1.headline",
+      "tag": "h1",
+      "text": "Ship interfaces faster",
+      "rendersText": true,
+      "box": { "x": 340, "y": 200, "width": 600, "height": 72 },
+      "styles": {
+        "color": "rgb(28, 25, 23)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "effectiveBackground": "rgb(255, 255, 255)",
+        "fontSize": 60, "fontWeight": 600, "lineHeight": 64,
+        "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 0, "borderTopRightRadius": 0,
+        "borderBottomLeftRadius": 0, "borderBottomRightRadius": 0
+      }
+    },
+    {
+      "selector": "main > section.hero > button.cta",
+      "tag": "button",
+      "text": "",
+      "rendersText": false,
+      "box": { "x": 620, "y": 320, "width": 140, "height": 44 },
+      "styles": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgb(232, 78, 39)",
+        "effectiveBackground": "rgb(232, 78, 39)",
+        "fontSize": 16, "fontWeight": 600, "lineHeight": 24,
+        "paddingTop": 16, "paddingRight": 16, "paddingBottom": 16, "paddingLeft": 18,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 8, "borderTopRightRadius": 8,
+        "borderBottomLeftRadius": 8, "borderBottomRightRadius": 8
+      }
+    },
+    {
+      "selector": "main > section.features > div.badge",
+      "tag": "div",
+      "text": "",
+      "rendersText": false,
+      "box": { "x": 500, "y": 820, "width": 60, "height": 24 },
+      "styles": {
+        "color": "rgb(82, 77, 73)",
+        "backgroundColor": "rgb(231, 229, 228)",
+        "effectiveBackground": "rgb(231, 229, 228)",
+        "fontSize": 12, "fontWeight": 500, "lineHeight": 16,
+        "paddingTop": 4, "paddingRight": 8, "paddingBottom": 4, "paddingLeft": 8,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 30, "borderTopRightRadius": 30,
+        "borderBottomLeftRadius": 30, "borderBottomRightRadius": 30
+      }
+    },
+    {
+      "selector": "footer > p.lowcontrast",
+      "tag": "p",
+      "text": "subtle footnote",
+      "rendersText": true,
+      "box": { "x": 48, "y": 1600, "width": 300, "height": 22 },
+      "styles": {
+        "color": "rgb(161, 153, 147)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "effectiveBackground": "rgb(255, 255, 255)",
+        "fontSize": 14, "fontWeight": 400, "lineHeight": 22,
+        "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 0, "borderTopRightRadius": 0,
+        "borderBottomLeftRadius": 0, "borderBottomRightRadius": 0
+      }
+    },
+    {
+      "selector": "main > section.promo > span.rogue",
+      "tag": "span",
+      "text": "Sale",
+      "rendersText": true,
+      "box": { "x": 100, "y": 900, "width": 80, "height": 24 },
+      "styles": {
+        "color": "rgb(21, 96, 189)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "effectiveBackground": "rgb(255, 255, 255)",
+        "fontSize": 16, "fontWeight": 600, "lineHeight": 24,
+        "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 0, "borderTopRightRadius": 0,
+        "borderBottomLeftRadius": 0, "borderBottomRightRadius": 0
+      }
+    },
+    {
+      "selector": "main > section.promo",
+      "tag": "section",
+      "text": "",
+      "rendersText": false,
+      "box": { "x": 0, "y": 880, "width": 1280, "height": 120 },
+      "styles": {
+        "color": "rgb(28, 25, 23)",
+        "backgroundColor": "rgb(123, 47, 247)",
+        "effectiveBackground": "rgb(123, 47, 247)",
+        "fontSize": 16, "fontWeight": 400, "lineHeight": 24,
+        "paddingTop": 24, "paddingRight": 48, "paddingBottom": 24, "paddingLeft": 48,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": null,
+        "borderTopLeftRadius": 0, "borderTopRightRadius": 0,
+        "borderBottomLeftRadius": 0, "borderBottomRightRadius": 0
+      }
+    },
+    {
+      "selector": "main > section.features > div.row",
+      "tag": "div",
+      "text": "",
+      "rendersText": false,
+      "box": { "x": 48, "y": 1000, "width": 1184, "height": 200 },
+      "styles": {
+        "color": "rgb(28, 25, 23)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "effectiveBackground": "rgb(255, 255, 255)",
+        "fontSize": 16, "fontWeight": 400, "lineHeight": 24,
+        "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+        "marginTop": 0, "marginRight": 0, "marginBottom": 0, "marginLeft": 0,
+        "gap": 10,
+        "borderTopLeftRadius": 0, "borderTopRightRadius": 0,
+        "borderBottomLeftRadius": 0, "borderBottomRightRadius": 0
+      }
+    }
+  ]
+}

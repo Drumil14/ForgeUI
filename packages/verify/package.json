@@ -1,0 +1,24 @@
+{
+  "name": "@forgeui/verify",
+  "version": "0.2.0",
+  "description": "Diff a live rendered page against Figma design tokens and report violations.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@forgeui/core": "0.2.0"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.49.1"
+  }
+}

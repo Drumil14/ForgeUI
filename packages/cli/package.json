@@ -1,0 +1,26 @@
+{
+  "name": "@forgeui/cli",
+  "version": "0.2.0",
+  "description": "The forgeui command line — generate and verify.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "forgeui": "./bin/forgeui.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "bin"],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@forgeui/core": "0.2.0",
+    "@forgeui/generate": "0.2.0",
+    "@forgeui/verify": "0.2.0"
+  }
+}
