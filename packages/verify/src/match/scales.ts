@@ -20,6 +20,8 @@ export interface TokenScales {
   palette: Array<{ name: string; rgb: { r: number; g: number; b: number } }>;
   /** The largest radius token value (used to recognise pill/`full` radii). */
   maxRadius: number;
+  /** The largest spacing token value (used to spot auto-centering margins). */
+  maxSpacing: number;
 }
 
 function dedupeSteps(steps: NumericStep[]): NumericStep[] {
@@ -49,8 +51,9 @@ export function buildScales(
     .filter((c): c is { name: string; rgb: { r: number; g: number; b: number } } => c.rgb !== null);
 
   const maxRadius = radius.reduce((m, r) => Math.max(m, r.value), 0);
+  const maxSpacing = spacing.reduce((m, s) => Math.max(m, s.value), 0);
 
-  return { spacing, fontSize, radius, palette, maxRadius };
+  return { spacing, fontSize, radius, palette, maxRadius, maxSpacing };
 }
 
 /** Nearest step to `value` in a sorted numeric scale. Returns null for empty scales. */

@@ -82,11 +82,19 @@ function checkSpacing(
     ["padding-right", s.paddingRight],
     ["padding-bottom", s.paddingBottom],
     ["padding-left", s.paddingLeft],
-    ["margin-top", s.marginTop],
-    ["margin-right", s.marginRight],
-    ["margin-bottom", s.marginBottom],
-    ["margin-left", s.marginLeft],
   ];
+  // Auto-centering (`margin: 0 auto`) resolves to large, symmetric px margins
+  // that are a layout outcome, not a token decision — don't flag those.
+  const centeredX =
+    s.marginLeft === s.marginRight && s.marginLeft > scales.maxSpacing;
+  const centeredY =
+    s.marginTop === s.marginBottom && s.marginTop > scales.maxSpacing;
+  if (!centeredY) {
+    entries.push(["margin-top", s.marginTop], ["margin-bottom", s.marginBottom]);
+  }
+  if (!centeredX) {
+    entries.push(["margin-left", s.marginLeft], ["margin-right", s.marginRight]);
+  }
   if (s.gap !== null) entries.push(["gap", s.gap]);
 
   for (const [property, value] of entries) {
