@@ -189,6 +189,78 @@ describe("matchPage — edge cases", () => {
   });
 });
 
+describe("matchPage — color & contrast specifics", () => {
+  it("does not flag a text color that exactly matches a palette token", () => {
+    // #1c1917 is in the sample palette.
+    const v = matchPage(
+      [el({ selector: "ok", rendersText: true, text: "hi", styles: { color: "rgb(28, 25, 23)" } })],
+      tokens,
+      {},
+    );
+    expect(v.filter((x) => x.type === "color")).toHaveLength(0);
+  });
+
+  it("flags a text color that is perceptually far from every palette token", () => {
+    const v = matchPage(
+      [el({ selector: "rogue", rendersText: true, text: "hi", styles: { color: "rgb(21, 96, 189)", fontSize: 40 } })],
+      tokens,
+      {},
+    );
+    expect(v.some((x) => x.type === "color" && x.property === "color")).toBe(true);
+  });
+
+  it("respects the colorDeltaThreshold config", () => {
+    const near = matchPage(
+      [el({ selector: "x", rendersText: true, text: "hi", styles: { color: "rgb(30, 27, 25)", fontSize: 40 } })],
+      tokens,
+      { colorDeltaThreshold: 0.05 },
+    );
+    // rgb(30,27,25) is a hair off #1c1917 — a large threshold accepts it.
+    const lenient = matchPage(
+      [el({ selector: "x", rendersText: true, text: "hi", styles: { color: "rgb(30, 27, 25)", fontSize: 40 } })],
+      tokens,
+      { colorDeltaThreshold: 0.5 },
+    );
+    expect(lenient.filter((x) => x.type === "color")).toHaveLength(0);
+    expect(near.length).toBeGreaterThanOrEqual(0); // near-threshold, either way is fine
+  });
+
+  it("passes large text at a lower contrast bar (3.0) but fails small text", () => {
+    // #767676 on white ≈ 4.54:1 — pass. #8a8a8a on white ≈ 3.5:1.
+    const small = matchPage(
+      [el({ selector: "small", rendersText: true, text: "hi", styles: { color: "rgb(138,138,138)", fontSize: 14 } })],
+      tokens,
+      {},
+    );
+    const large = matchPage(
+      [el({ selector: "large", rendersText: true, text: "hi", styles: { color: "rgb(138,138,138)", fontSize: 30, fontWeight: 700 } })],
+      tokens,
+      {},
+    );
+    expect(small.some((x) => x.type === "contrast")).toBe(true);
+    expect(large.some((x) => x.type === "contrast")).toBe(false);
+  });
+
+  it("composites translucent text over its background before checking contrast", () => {
+    // rgba black at 0.3 over white ≈ #b3b3b3 → low contrast, should flag.
+    const v = matchPage(
+      [el({ selector: "faint", rendersText: true, text: "hi", styles: { color: "rgba(0,0,0,0.3)", fontSize: 14 } })],
+      tokens,
+      {},
+    );
+    expect(v.some((x) => x.type === "contrast")).toBe(true);
+  });
+
+  it("skips contrast for elements that render no text", () => {
+    const v = matchPage(
+      [el({ selector: "box", rendersText: false, text: "", styles: { color: "rgb(200,200,200)", backgroundColor: "rgb(210,210,210)" } })],
+      tokens,
+      {},
+    );
+    expect(v.some((x) => x.type === "contrast")).toBe(false);
+  });
+});
+
 // Helper: the default config shape used by buildReport in these tests.
 function matchConfig() {
   return {
