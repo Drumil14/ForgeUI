@@ -1,0 +1,83 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseFigmaFile — regression over the sample marketing fixture > matches the committed golden snapshot (locks current behaviour) 1`] = `
+{
+  "a11ySummary": {
+    "errors": 1,
+    "passes": 4,
+    "warnings": 0,
+  },
+  "colorNames": [
+    "primary-400:#e84e27",
+    "secondary-800:#1c1917",
+    "surface-50:#ffffff",
+    "surface-50-2:#fafaf9",
+    "neutral-500:#78716c",
+    "neutral-400:#a19993",
+    "neutral-100:#e7e5e4",
+    "neutral-600:#524d49",
+  ],
+  "components": [
+    {
+      "kind": "Navbar",
+      "name": "Navbar",
+    },
+    {
+      "kind": "Hero",
+      "name": "Hero",
+    },
+    {
+      "kind": "Card",
+      "name": "FeatureCard",
+    },
+    {
+      "kind": "Badge",
+      "name": "BetaBadge",
+    },
+    {
+      "kind": "Input",
+      "name": "EmailInputField",
+    },
+    {
+      "kind": "Footer",
+      "name": "Footer",
+    },
+    {
+      "kind": "Button",
+      "name": "Button",
+    },
+  ],
+  "fileName": "Acme Marketing Site",
+  "pages": [
+    "Marketing",
+  ],
+  "radii": [
+    "radius-none:8",
+    "radius-sm:12",
+    "radius-md:9999",
+  ],
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64,
+    96,
+  ],
+  "typography": [
+    "display:60/600",
+    "h4:20/700",
+    "h4-2:20/400",
+    "h4-3:20/600",
+    "body:16/400",
+    "body-2:14/500",
+    "body-3:14/400",
+    "caption:12/600",
+    "caption-2:12/500",
+    "caption-3:12/400",
+  ],
+}
+`;

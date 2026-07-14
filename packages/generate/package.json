@@ -1,0 +1,21 @@
+{
+  "name": "@forgeui/generate",
+  "version": "0.2.0",
+  "description": "Figma → React + Tailwind generation for ForgeUI.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@forgeui/core": "0.2.0"
+  }
+}

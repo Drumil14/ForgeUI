@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output
+packages/*/dist/
+apps/*/.next/
+apps/*/out/
+*.tsbuildinfo
+
+# Verify engine output
+**/report.json
+**/report.html
+verify-output/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs / OS
+*.log
+.DS_Store
+Thumbs.db

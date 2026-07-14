@@ -1,0 +1,293 @@
+{
+  "name": "Acme Marketing Site",
+  "lastModified": "2025-08-14T10:32:00Z",
+  "version": "1001",
+  "thumbnailUrl": "",
+  "role": "owner",
+  "components": {},
+  "styles": {},
+  "document": {
+    "id": "0:0",
+    "name": "Document",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "1:0",
+        "name": "Marketing",
+        "type": "CANVAS",
+        "children": [
+          {
+            "id": "3:0",
+            "name": "Navbar",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 0, "width": 1440, "height": 72 },
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisAlignItems": "SPACE_BETWEEN",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 32,
+            "paddingTop": 16,
+            "paddingRight": 48,
+            "paddingBottom": 16,
+            "paddingLeft": 48,
+            "fills": [{ "type": "SOLID", "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }],
+            "children": [
+              {
+                "id": "3:1",
+                "name": "Logo",
+                "type": "TEXT",
+                "characters": "Acme",
+                "absoluteBoundingBox": { "x": 48, "y": 24, "width": 80, "height": 24 },
+                "style": { "fontFamily": "Inter", "fontWeight": 700, "fontSize": 20, "lineHeightPx": 24 },
+                "fills": [{ "type": "SOLID", "color": { "r": 0.109, "g": 0.098, "b": 0.09, "a": 1 } }]
+              },
+              {
+                "id": "3:2",
+                "name": "Nav Links",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 600, "y": 24, "width": 400, "height": 24 },
+                "layoutMode": "HORIZONTAL",
+                "itemSpacing": 32,
+                "children": [
+                  {
+                    "id": "3:3",
+                    "name": "Link Product",
+                    "type": "TEXT",
+                    "characters": "Product",
+                    "absoluteBoundingBox": { "x": 600, "y": 24, "width": 60, "height": 22 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 500, "fontSize": 14, "lineHeightPx": 22 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.47, "g": 0.443, "b": 0.424, "a": 1 } }]
+                  },
+                  {
+                    "id": "3:4",
+                    "name": "Link Pricing",
+                    "type": "TEXT",
+                    "characters": "Pricing",
+                    "absoluteBoundingBox": { "x": 700, "y": 24, "width": 60, "height": 22 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 500, "fontSize": 14, "lineHeightPx": 22 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.47, "g": 0.443, "b": 0.424, "a": 1 } }]
+                  }
+                ]
+              },
+              {
+                "id": "3:5",
+                "name": "CTA Button",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 1280, "y": 20, "width": 112, "height": 40 },
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8,
+                "paddingTop": 8,
+                "paddingRight": 16,
+                "paddingBottom": 8,
+                "paddingLeft": 16,
+                "cornerRadius": 8,
+                "fills": [{ "type": "SOLID", "color": { "r": 0.909, "g": 0.306, "b": 0.153, "a": 1 } }],
+                "children": [
+                  {
+                    "id": "3:6",
+                    "name": "Label",
+                    "type": "TEXT",
+                    "characters": "Get started",
+                    "absoluteBoundingBox": { "x": 1296, "y": 28, "width": 80, "height": 22 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 500, "fontSize": 14, "lineHeightPx": 22 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "4:0",
+            "name": "Hero",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 136, "width": 1440, "height": 560 },
+            "layoutMode": "VERTICAL",
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "itemSpacing": 24,
+            "paddingTop": 96,
+            "paddingRight": 48,
+            "paddingBottom": 96,
+            "paddingLeft": 48,
+            "children": [
+              {
+                "id": "4:1",
+                "name": "Eyebrow",
+                "type": "TEXT",
+                "characters": "DESIGN TO CODE",
+                "absoluteBoundingBox": { "x": 620, "y": 232, "width": 200, "height": 16 },
+                "style": { "fontFamily": "Inter", "fontWeight": 600, "fontSize": 12, "lineHeightPx": 16 },
+                "fills": [{ "type": "SOLID", "color": { "r": 0.909, "g": 0.306, "b": 0.153, "a": 1 } }]
+              },
+              {
+                "id": "4:2",
+                "name": "Headline",
+                "type": "TEXT",
+                "characters": "Ship interfaces faster",
+                "absoluteBoundingBox": { "x": 420, "y": 264, "width": 600, "height": 64 },
+                "style": { "fontFamily": "Inter", "fontWeight": 600, "fontSize": 60, "lineHeightPx": 64 },
+                "fills": [{ "type": "SOLID", "color": { "r": 0.109, "g": 0.098, "b": 0.09, "a": 1 } }]
+              },
+              {
+                "id": "4:3",
+                "name": "Subhead",
+                "type": "TEXT",
+                "characters": "Turn your Figma files into accessible React components in seconds.",
+                "absoluteBoundingBox": { "x": 470, "y": 352, "width": 500, "height": 52 },
+                "style": { "fontFamily": "Inter", "fontWeight": 400, "fontSize": 20, "lineHeightPx": 30 },
+                "fills": [{ "type": "SOLID", "color": { "r": 0.47, "g": 0.443, "b": 0.424, "a": 1 } }]
+              }
+            ]
+          },
+          {
+            "id": "5:0",
+            "name": "Feature Grid",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 820, "width": 1440, "height": 400 },
+            "layoutMode": "HORIZONTAL",
+            "itemSpacing": 24,
+            "paddingTop": 48,
+            "paddingRight": 48,
+            "paddingBottom": 48,
+            "paddingLeft": 48,
+            "children": [
+              {
+                "id": "5:1",
+                "name": "Feature Card",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 48, "y": 868, "width": 420, "height": 260 },
+                "layoutMode": "VERTICAL",
+                "itemSpacing": 12,
+                "paddingTop": 24,
+                "paddingRight": 24,
+                "paddingBottom": 24,
+                "paddingLeft": 24,
+                "cornerRadius": 12,
+                "fills": [{ "type": "SOLID", "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }],
+                "strokes": [{ "type": "SOLID", "color": { "r": 0.905, "g": 0.898, "b": 0.894, "a": 1 } }],
+                "strokeWeight": 1,
+                "effects": [
+                  { "type": "DROP_SHADOW", "radius": 6, "color": { "r": 0, "g": 0, "b": 0, "a": 0.05 }, "offset": { "x": 0, "y": 4 }, "spread": 0 }
+                ],
+                "children": [
+                  {
+                    "id": "5:2",
+                    "name": "Card Title",
+                    "type": "TEXT",
+                    "characters": "Lightning-fast imports",
+                    "absoluteBoundingBox": { "x": 72, "y": 892, "width": 200, "height": 28 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 600, "fontSize": 20, "lineHeightPx": 28 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.109, "g": 0.098, "b": 0.09, "a": 1 } }]
+                  },
+                  {
+                    "id": "5:3",
+                    "name": "Card Body",
+                    "type": "TEXT",
+                    "characters": "Paste a URL and get a full component library back.",
+                    "absoluteBoundingBox": { "x": 72, "y": 932, "width": 360, "height": 44 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 400, "fontSize": 16, "lineHeightPx": 26 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.47, "g": 0.443, "b": 0.424, "a": 1 } }]
+                  }
+                ]
+              },
+              {
+                "id": "5:4",
+                "name": "Beta Badge",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 500, "y": 868, "width": 60, "height": 24 },
+                "layoutMode": "HORIZONTAL",
+                "primaryAxisAlignItems": "CENTER",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 4,
+                "paddingTop": 4,
+                "paddingRight": 8,
+                "paddingBottom": 4,
+                "paddingLeft": 8,
+                "cornerRadius": 9999,
+                "fills": [{ "type": "SOLID", "color": { "r": 0.905, "g": 0.898, "b": 0.894, "a": 1 } }],
+                "children": [
+                  {
+                    "id": "5:5",
+                    "name": "Badge Label",
+                    "type": "TEXT",
+                    "characters": "Beta",
+                    "absoluteBoundingBox": { "x": 508, "y": 872, "width": 44, "height": 16 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 500, "fontSize": 12, "lineHeightPx": 16 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.32, "g": 0.302, "b": 0.286, "a": 1 } }]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "6:0",
+            "name": "Newsletter",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 1260, "width": 1440, "height": 200 },
+            "layoutMode": "VERTICAL",
+            "itemSpacing": 16,
+            "paddingTop": 48,
+            "paddingRight": 48,
+            "paddingBottom": 48,
+            "paddingLeft": 48,
+            "children": [
+              {
+                "id": "6:1",
+                "name": "Email Input Field",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 48, "y": 1308, "width": 320, "height": 40 },
+                "layoutMode": "HORIZONTAL",
+                "counterAxisAlignItems": "CENTER",
+                "itemSpacing": 8,
+                "paddingTop": 8,
+                "paddingRight": 12,
+                "paddingBottom": 8,
+                "paddingLeft": 12,
+                "cornerRadius": 8,
+                "fills": [{ "type": "SOLID", "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }],
+                "strokes": [{ "type": "SOLID", "color": { "r": 0.905, "g": 0.898, "b": 0.894, "a": 1 } }],
+                "strokeWeight": 1,
+                "children": [
+                  {
+                    "id": "6:2",
+                    "name": "Placeholder",
+                    "type": "TEXT",
+                    "characters": "you@example.com",
+                    "absoluteBoundingBox": { "x": 60, "y": 1318, "width": 200, "height": 22 },
+                    "style": { "fontFamily": "Inter", "fontWeight": 400, "fontSize": 14, "lineHeightPx": 22 },
+                    "fills": [{ "type": "SOLID", "color": { "r": 0.63, "g": 0.6, "b": 0.576, "a": 1 } }]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "7:0",
+            "name": "Footer",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 1520, "width": 1440, "height": 320 },
+            "layoutMode": "HORIZONTAL",
+            "itemSpacing": 64,
+            "paddingTop": 64,
+            "paddingRight": 48,
+            "paddingBottom": 64,
+            "paddingLeft": 48,
+            "fills": [{ "type": "SOLID", "color": { "r": 0.98, "g": 0.98, "b": 0.976, "a": 1 } }],
+            "children": [
+              {
+                "id": "7:1",
+                "name": "Footer Copy",
+                "type": "TEXT",
+                "characters": "© 2025 Acme, Inc.",
+                "absoluteBoundingBox": { "x": 48, "y": 1584, "width": 200, "height": 16 },
+                "style": { "fontFamily": "Inter", "fontWeight": 400, "fontSize": 12, "lineHeightPx": 16 },
+                "fills": [{ "type": "SOLID", "color": { "r": 0.63, "g": 0.6, "b": 0.576, "a": 1 } }]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@forgeui/core",
+  "version": "0.2.0",
+  "description": "Shared Figma client + design-token model for ForgeUI.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -b"
+  }
+}
