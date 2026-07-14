@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme — paper-white with restrained ink */
+    --bg: 252 252 251;
+    --bg-elevated: 255 255 255;
+    --bg-subtle: 246 246 244;
+
+    --fg: 17 17 17;
+    --fg-muted: 91 91 88;
+    --fg-subtle: 138 138 134;
+
+    --border: 229 229 226;
+    --border-strong: 209 209 205;
+
+    /* Accent: vermillion — used once, with restraint */
+    --accent: 232 78 39;
+    --accent-fg: 255 255 255;
+
+    --success: 22 128 76;
+    --warning: 178 110 16;
+    --danger: 196 36 36;
+
+    --font-sans: "Inter", "SF Pro Text", system-ui, -apple-system, sans-serif;
+    --font-display: "Inter", "SF Pro Display", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  }
+
+  .dark {
+    --bg: 10 10 10;
+    --bg-elevated: 18 18 18;
+    --bg-subtle: 22 22 22;
+
+    --fg: 245 245 244;
+    --fg-muted: 168 168 165;
+    --fg-subtle: 115 115 112;
+
+    --border: 38 38 38;
+    --border-strong: 60 60 60;
+
+    --accent: 255 110 70;
+    --accent-fg: 17 17 17;
+
+    --success: 64 196 128;
+    --warning: 235 170 60;
+    --danger: 240 92 92;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.2);
+    color: rgb(var(--fg));
+  }
+
+  /* Visible keyboard focus — never hide it */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Grid pattern background — subtle blueprint feel */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(
+      rgb(var(--border-strong) / 0.7) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
+
+  /* A thin, refined scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border-strong)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--border-strong));
+    border-radius: 3px;
+  }
+
+  /* Monospace eyebrow used for labels throughout */
+  .eyebrow {
+    @apply font-mono text-2xs uppercase tracking-wider text-fg-subtle;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
