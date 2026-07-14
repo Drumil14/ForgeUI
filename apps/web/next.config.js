@@ -2,6 +2,10 @@
 const nextConfig = {
   // The shared ForgeUI packages ship as workspace deps; Next transpiles them.
   transpilePackages: ["@forgeui/core", "@forgeui/generate"],
+  // Serve the pre-generated `forgeui verify` report (public/demo.html) at /demo.
+  async rewrites() {
+    return [{ source: "/demo", destination: "/demo.html" }];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.figma.com" },

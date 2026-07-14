@@ -34,6 +34,12 @@ export function MarketingNav() {
             How it works
           </Link>
           <a
+            href="/demo"
+            className="hidden rounded px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg sm:inline-block"
+          >
+            Live demo
+          </a>
+          <a
             href="https://github.com"
             target="_blank"
             rel="noreferrer noopener"
