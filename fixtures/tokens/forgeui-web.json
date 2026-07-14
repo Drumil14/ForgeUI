@@ -1,0 +1,71 @@
+{
+  "_comment": "ForgeUI's OWN design system, so the app can be checked with `forgeui verify` — practising what the tool preaches. Colors mirror app/globals.css (light theme); spacing/type/radii mirror the Tailwind scales the app uses.",
+  "colors": [
+    { "name": "bg", "hex": "#fcfcfb", "rgba": "rgba(252,252,251,1)", "usage": 40, "role": "surface" },
+    { "name": "bg-elevated", "hex": "#ffffff", "rgba": "rgba(255,255,255,1)", "usage": 30, "role": "surface" },
+    { "name": "bg-subtle", "hex": "#f6f6f4", "rgba": "rgba(246,246,244,1)", "usage": 20, "role": "surface" },
+    { "name": "fg", "hex": "#111111", "rgba": "rgba(17,17,17,1)", "usage": 50, "role": "neutral" },
+    { "name": "fg-muted", "hex": "#5b5b58", "rgba": "rgba(91,91,88,1)", "usage": 30, "role": "neutral" },
+    { "name": "fg-subtle", "hex": "#6b6b67", "rgba": "rgba(107,107,103,1)", "usage": 15, "role": "neutral" },
+    { "name": "border", "hex": "#e5e5e2", "rgba": "rgba(229,229,226,1)", "usage": 25, "role": "neutral" },
+    { "name": "border-strong", "hex": "#d1d1cd", "rgba": "rgba(209,209,205,1)", "usage": 12, "role": "neutral" },
+    { "name": "accent", "hex": "#e84e27", "rgba": "rgba(232,78,39,1)", "usage": 18, "role": "primary" },
+    { "name": "accent-fg", "hex": "#ffffff", "rgba": "rgba(255,255,255,1)", "usage": 10, "role": "surface" },
+    { "name": "success", "hex": "#16804c", "rgba": "rgba(22,128,76,1)", "usage": 4, "role": "accent" },
+    { "name": "warning", "hex": "#b26e10", "rgba": "rgba(178,110,16,1)", "usage": 4, "role": "accent" },
+    { "name": "danger", "hex": "#c42424", "rgba": "rgba(196,36,36,1)", "usage": 4, "role": "accent" }
+  ],
+  "typography": [
+    { "name": "2xs", "fontFamily": "Inter", "fontSize": 10, "fontWeight": 500, "usage": 6 },
+    { "name": "xs", "fontFamily": "Inter", "fontSize": 12, "fontWeight": 500, "usage": 20 },
+    { "name": "sm", "fontFamily": "Inter", "fontSize": 14, "fontWeight": 400, "usage": 40 },
+    { "name": "base", "fontFamily": "Inter", "fontSize": 16, "fontWeight": 400, "usage": 30 },
+    { "name": "lg", "fontFamily": "Inter", "fontSize": 18, "fontWeight": 500, "usage": 12 },
+    { "name": "xl", "fontFamily": "Inter", "fontSize": 20, "fontWeight": 600, "usage": 8 },
+    { "name": "2xl", "fontFamily": "Inter", "fontSize": 24, "fontWeight": 600, "usage": 6 },
+    { "name": "3xl", "fontFamily": "Inter", "fontSize": 30, "fontWeight": 600, "usage": 5 },
+    { "name": "4xl", "fontFamily": "Inter", "fontSize": 36, "fontWeight": 700, "usage": 4 },
+    { "name": "5xl", "fontFamily": "Inter", "fontSize": 48, "fontWeight": 700, "usage": 3 },
+    { "name": "6xl", "fontFamily": "Inter", "fontSize": 60, "fontWeight": 700, "usage": 2 },
+    { "name": "7xl", "fontFamily": "Inter", "fontSize": 72, "fontWeight": 700, "usage": 1 }
+  ],
+  "spacing": [
+    { "name": "px", "value": 1, "usage": 10 },
+    { "name": "0.5", "value": 2, "usage": 8 },
+    { "name": "1", "value": 4, "usage": 30 },
+    { "name": "1.5", "value": 6, "usage": 20 },
+    { "name": "2", "value": 8, "usage": 40 },
+    { "name": "2.5", "value": 10, "usage": 12 },
+    { "name": "3", "value": 12, "usage": 30 },
+    { "name": "3.5", "value": 14, "usage": 8 },
+    { "name": "4", "value": 16, "usage": 40 },
+    { "name": "5", "value": 20, "usage": 20 },
+    { "name": "6", "value": 24, "usage": 30 },
+    { "name": "7", "value": 28, "usage": 8 },
+    { "name": "8", "value": 32, "usage": 20 },
+    { "name": "9", "value": 36, "usage": 6 },
+    { "name": "10", "value": 40, "usage": 12 },
+    { "name": "11", "value": 44, "usage": 6 },
+    { "name": "12", "value": 48, "usage": 14 },
+    { "name": "14", "value": 56, "usage": 8 },
+    { "name": "16", "value": 64, "usage": 10 },
+    { "name": "20", "value": 80, "usage": 6 },
+    { "name": "24", "value": 96, "usage": 6 },
+    { "name": "28", "value": 112, "usage": 4 },
+    { "name": "32", "value": 128, "usage": 4 }
+  ],
+  "radii": [
+    { "name": "radius-2xs", "value": 2 },
+    { "name": "radius-sm", "value": 4 },
+    { "name": "radius-md", "value": 6 },
+    { "name": "radius-lg", "value": 8 },
+    { "name": "radius-xl", "value": 12 },
+    { "name": "radius-2xl", "value": 16 },
+    { "name": "radius-3xl", "value": 24 },
+    { "name": "radius-full", "value": 9999 }
+  ],
+  "shadows": [
+    { "name": "shadow-sm", "value": "0 1px 2px 0 rgba(0,0,0,0.05)" },
+    { "name": "shadow-md", "value": "0 4px 6px -1px rgba(0,0,0,0.1)" }
+  ]
+}
