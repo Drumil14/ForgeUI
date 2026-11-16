@@ -9,7 +9,7 @@ import {
   IconTablet,
 } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
-import { RenderComponent } from "./render-registry";
+import { SandboxPreview } from "./sandbox-preview";
 import { cn } from "@/utils/cn";
 import type { Viewport } from "@/types";
 import type { ReactNode } from "react";
@@ -39,7 +39,7 @@ const VIEWPORTS: ViewportButton[] = [
 ];
 
 export function Preview() {
-  const { design, state, setViewport, setZoom } = useDesign();
+  const { design, state, setViewport, setZoom, propsOverrides } = useDesign();
 
   const selected =
     design?.components.find((c) => c.id === state.selectedComponentId) ?? null;
@@ -155,8 +155,13 @@ export function Preview() {
                     </p>
                   </div>
                 </div>
-                <div className="flex min-h-[240px] items-center justify-center p-6 ring-1 ring-inset ring-accent/0 transition-shadow">
-                  <RenderComponent component={selected} />
+                <div className="min-h-[200px]">
+                  <SandboxPreview
+                    key={selected.id}
+                    component={selected}
+                    tokens={design?.tokens ?? null}
+                    propsOverrides={propsOverrides[selected.id]}
+                  />
                 </div>
               </div>
             </div>

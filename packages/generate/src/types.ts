@@ -1,4 +1,5 @@
 import type { DesignTokens } from "@forgeui/core/browser";
+import type { IRNode } from "./ir.js";
 
 /**
  * Types for the generated / analyzed representation of a Figma file. The token
@@ -51,6 +52,11 @@ export interface GeneratedComponent {
   /** The Figma page (CANVAS) the source node lives on. */
   pageId?: string;
   pageName?: string;
+  /**
+   * The Design IR this component's source was generated from (absent for
+   * synthesized examples, which have no Figma subtree).
+   */
+  ir?: IRNode;
 }
 
 export interface ComponentProp {

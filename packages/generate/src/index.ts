@@ -8,6 +8,14 @@
 export * from "./types.js";
 export * from "./tailwind-map.js";
 export {
+  buildIR,
+  type IRNode,
+  type IRLayout,
+  type IRPadding,
+  type IRTypography,
+  type BuildIROptions,
+} from "./ir.js";
+export {
   classifyComponent,
   classifyComponentDetailed,
   type Classification,

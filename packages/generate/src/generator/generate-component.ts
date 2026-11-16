@@ -7,6 +7,7 @@ import type {
 } from "../types.js";
 import { classifyComponentDetailed } from "../parser/classify-component.js";
 import { buildTailwindClasses } from "./build-classes.js";
+import { buildIR, type IRNode } from "../ir.js";
 
 /**
  * Generate ready-to-paste TSX source from a Figma node.
@@ -472,20 +473,83 @@ export function ${name}({ brand, sections, legal }: ${name}Props) {
   };
 }
 
+// --- IR-driven generic generation ----------------------------------------
+//
+// For nodes that don't match a canonical template (sections, layout
+// compositions, generic containers), the markup is derived from the Design IR:
+// the real node hierarchy, auto-layout, spacing, and text — not a placeholder
+// div. This is what makes "what you export" structurally mirror the design.
+
+function escapeJsxText(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\{/g, "&#123;")
+    .replace(/\}/g, "&#125;");
+}
+
+/** Pick a sensible HTML tag for an IR node. */
+function tagFor(ir: IRNode, depth: number): string {
+  if (ir.role === "text") {
+    const size = ir.typography?.fontSize ?? 0;
+    if (size >= 32) return depth <= 1 ? "h1" : "h2";
+    if (size >= 24) return "h2";
+    if (size >= 19) return "h3";
+    return "p";
+  }
+  if (ir.role === "image") return "div"; // placeholder box; asset export is separate
+  if (ir.role === "vector") return "span";
+  if (depth === 0) return "section";
+  return "div";
+}
+
+function irToJsx(ir: IRNode, depth: number, indent: string): string {
+  const tag = tagFor(ir, depth);
+  const cls = ir.classes ? ` className="${ir.classes}"` : "";
+
+  if (ir.role === "text") {
+    const text = escapeJsxText((ir.text ?? "").trim() || ir.name);
+    return `${indent}<${tag}${cls}>${text}</${tag}>`;
+  }
+
+  if (ir.role === "vector") {
+    return `${indent}<span${cls} aria-hidden="true" />`;
+  }
+
+  if (ir.role === "image") {
+    const label = escapeJsxText(ir.name);
+    return `${indent}<div${cls} role="img" aria-label="${label}" />`;
+  }
+
+  if (ir.children.length === 0) {
+    return `${indent}<${tag}${cls} />`;
+  }
+
+  const children = ir.children
+    .map((c) => irToJsx(c, depth + 1, indent + "  "))
+    .join("\n");
+  return `${indent}<${tag}${cls}>\n${children}\n${indent}</${tag}>`;
+}
+
 function generateContainer(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
+  const ir = buildIR(node);
   const text = findFirstText(node);
+  const body = irToJsx(ir, 0, "    ");
   const source = `import * as React from "react";
 
 interface ${name}Props {
   children?: React.ReactNode;
 }
 
+/**
+ * Generated from the Figma node "${node.name}" — the markup mirrors the
+ * design's own hierarchy and auto-layout.
+ */
 export function ${name}({ children }: ${name}Props) {
   return (
-    <div className="${classes}">
-      ${text ? `<span>${text}</span>` : "{children}"}
-    </div>
+${body}
   );
 }
 `;
@@ -558,6 +622,7 @@ export function generateComponent(
     sourceNodeId: node.id,
     pageId: meta.pageId,
     pageName: meta.pageName,
+    ir: buildIR(node),
   };
 }
 
