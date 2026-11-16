@@ -7,6 +7,8 @@ interface BadgeProps {
   children: ReactNode;
   tone?: BadgeTone;
   className?: string;
+  /** Native tooltip for extra context. */
+  title?: string;
 }
 
 const TONE_STYLES: Record<BadgeTone, string> = {
@@ -18,9 +20,10 @@ const TONE_STYLES: Record<BadgeTone, string> = {
   accent: "bg-accent/10 text-accent border-accent/30",
 };
 
-export function Badge({ children, tone = "neutral", className }: BadgeProps) {
+export function Badge({ children, tone = "neutral", className, title }: BadgeProps) {
   return (
     <span
+      title={title}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
         TONE_STYLES[tone],

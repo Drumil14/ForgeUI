@@ -19,6 +19,17 @@ export type ComponentKind =
   | "Icon"
   | "Section";
 
+/**
+ * Where a component came from:
+ *  - "extracted"   — promoted from a Figma node the designer named semantically
+ *                    (e.g. a layer called "Button/Primary").
+ *  - "inferred"    — promoted from a Figma node classified by structural
+ *                    heuristics (shape, auto-layout, children) rather than name.
+ *  - "synthesized" — not in the Figma file at all; a demonstration example
+ *                    built from the file's extracted tokens.
+ */
+export type ComponentOrigin = "extracted" | "inferred" | "synthesized";
+
 export interface GeneratedComponent {
   id: string;
   name: string;
@@ -33,6 +44,13 @@ export interface GeneratedComponent {
   children?: GeneratedComponent[];
   /** Optional preview text or content lifted from the design. */
   content?: string;
+  /** How this component entered the library. */
+  origin: ComponentOrigin;
+  /** The Figma node this was generated from (absent for synthesized examples). */
+  sourceNodeId?: string;
+  /** The Figma page (CANVAS) the source node lives on. */
+  pageId?: string;
+  pageName?: string;
 }
 
 export interface ComponentProp {

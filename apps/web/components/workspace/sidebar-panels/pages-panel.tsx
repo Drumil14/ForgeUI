@@ -8,6 +8,10 @@ export function PagesPanel() {
   const { design, state, setSelectedComponentId } = useDesign();
   if (!design) return null;
 
+  const synthesized = design.components.filter(
+    (c) => c.origin === "synthesized"
+  );
+
   return (
     <div className="space-y-3 p-4">
       <p className="eyebrow text-fg-subtle">
@@ -50,11 +54,43 @@ export function PagesPanel() {
                 })}
               </ul>
             ) : (
-              <p className="pl-5 text-xs text-fg-subtle">No components yet.</p>
+              <p className="pl-5 text-xs text-fg-subtle">
+                No components on this page.
+              </p>
             )}
           </li>
         ))}
       </ul>
+
+      {synthesized.length > 0 && (
+        <div className="border-t border-border pt-3">
+          <p className="mb-1 text-xs font-semibold text-fg-subtle">
+            Examples (no Figma page)
+          </p>
+          <ul className="space-y-px pl-5">
+            {synthesized.map((c) => {
+              const active = state.selectedComponentId === c.id;
+              return (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedComponentId(c.id)}
+                    className={cn(
+                      "block w-full truncate rounded px-2 py-1 text-left text-xs transition-colors",
+                      "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+                      active
+                        ? "bg-bg-subtle text-fg"
+                        : "text-fg-muted hover:bg-bg-subtle hover:text-fg"
+                    )}
+                  >
+                    {c.name}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

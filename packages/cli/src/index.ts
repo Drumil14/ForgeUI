@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { resolve, join, dirname } from "node:path";
 import {
   parseFigmaUrl,
   resolveFigmaClient,
@@ -7,13 +7,7 @@ import {
   type FigmaFileResponse,
   type DesignTokens,
 } from "@forgeui/core";
-import {
-  parseFigmaFile,
-  exportLibrary,
-  tokensToCss,
-  tokensToTailwindTheme,
-  tokensToJson,
-} from "@forgeui/generate";
+import { parseFigmaFile, exportLibraryFiles } from "@forgeui/generate";
 import {
   verify,
   exitCodeFor,
@@ -134,15 +128,13 @@ async function cmdGenerate(p: Parsed): Promise<number> {
   );
 
   const spin3 = new Spinner().start(`Writing output to ${color.gray(outDir)}…`);
-  await mkdir(join(outDir, "components"), { recursive: true });
-  await writeFile(join(outDir, "component-library.tsx"), exportLibrary(design));
-  await writeFile(join(outDir, "tokens.css"), tokensToCss(design.tokens));
-  await writeFile(join(outDir, "tailwind.config.ts"), tokensToTailwindTheme(design.tokens));
-  await writeFile(join(outDir, "tokens.json"), tokensToJson(design.tokens));
-  for (const c of design.components) {
-    await writeFile(join(outDir, "components", `${c.name}.tsx`), c.source);
+  const files = exportLibraryFiles(design);
+  for (const f of files) {
+    const target = join(outDir, ...f.path.split("/"));
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, f.content);
   }
-  spin3.succeed(`Wrote ${color.bold(String(design.components.length + 4))} files to ${color.gray(outDir)}`);
+  spin3.succeed(`Wrote ${color.bold(String(files.length))} files to ${color.gray(outDir)}`);
 
   // Summary table: components by kind.
   const byKind = new Map<string, number>();

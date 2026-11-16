@@ -1,6 +1,11 @@
 import type { FigmaNode } from "@forgeui/core/browser";
-import type { ComponentKind, ComponentProp, GeneratedComponent } from "../types.js";
-import { classifyComponent } from "../parser/classify-component.js";
+import type {
+  ComponentKind,
+  ComponentOrigin,
+  ComponentProp,
+  GeneratedComponent,
+} from "../types.js";
+import { classifyComponentDetailed } from "../parser/classify-component.js";
 import { buildTailwindClasses } from "./build-classes.js";
 
 /**
@@ -15,10 +20,11 @@ import { buildTailwindClasses } from "./build-classes.js";
 let idCounter = 0;
 const nextId = () => `c${++idCounter}`;
 
-interface GenerateOptions {
-  maxDepth?: number;
-  depth?: number;
-}
+/** What the per-kind generators produce; origin/page metadata is attached by generateComponent. */
+type DraftComponent = Omit<
+  GeneratedComponent,
+  "origin" | "sourceNodeId" | "pageId" | "pageName"
+>;
 
 const PROPS_BY_KIND: Record<ComponentKind, ComponentProp[]> = {
   Button: [
@@ -124,7 +130,7 @@ function findFirstText(node: FigmaNode): string | undefined {
   return undefined;
 }
 
-function generateButton(node: FigmaNode, name: string): GeneratedComponent {
+function generateButton(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const label = findFirstText(node) ?? "Button";
   const source = `import * as React from "react";
@@ -179,7 +185,7 @@ export function ${name}({
   };
 }
 
-function generateCard(node: FigmaNode, name: string): GeneratedComponent {
+function generateCard(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const title = findFirstText(node) ?? "Card title";
   const source = `import * as React from "react";
@@ -215,7 +221,7 @@ export function ${name}({ title, description, children }: ${name}Props) {
   };
 }
 
-function generateInput(node: FigmaNode, name: string): GeneratedComponent {
+function generateInput(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const source = `import * as React from "react";
 
@@ -264,7 +270,7 @@ ${name}.displayName = "${name}";
   };
 }
 
-function generateBadge(node: FigmaNode, name: string): GeneratedComponent {
+function generateBadge(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const label = findFirstText(node) ?? "Badge";
   const source = `import * as React from "react";
@@ -300,7 +306,7 @@ export function ${name}({ children, tone = "neutral" }: ${name}Props) {
   };
 }
 
-function generateNavbar(node: FigmaNode, name: string): GeneratedComponent {
+function generateNavbar(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const source = `import * as React from "react";
 
@@ -351,7 +357,7 @@ export function ${name}({ brand, items, action }: ${name}Props) {
   };
 }
 
-function generateHero(node: FigmaNode, name: string): GeneratedComponent {
+function generateHero(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const headline = findFirstText(node) ?? "Bring your designs to life";
   const source = `import * as React from "react";
@@ -402,7 +408,7 @@ export function ${name}({ headline, subhead, ctaLabel, onCta }: ${name}Props) {
   };
 }
 
-function generateFooter(node: FigmaNode, name: string): GeneratedComponent {
+function generateFooter(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const source = `import * as React from "react";
 
@@ -466,7 +472,7 @@ export function ${name}({ brand, sections, legal }: ${name}Props) {
   };
 }
 
-function generateContainer(node: FigmaNode, name: string): GeneratedComponent {
+function generateContainer(node: FigmaNode, name: string): DraftComponent {
   const classes = buildTailwindClasses(node);
   const text = findFirstText(node);
   const source = `import * as React from "react";
@@ -496,7 +502,7 @@ export function ${name}({ children }: ${name}Props) {
 
 const GENERATORS: Record<
   ComponentKind,
-  (node: FigmaNode, name: string) => GeneratedComponent
+  (node: FigmaNode, name: string) => DraftComponent
 > = {
   Button: generateButton,
   Card: generateCard,
@@ -512,24 +518,47 @@ const GENERATORS: Record<
   Icon: generateContainer,
 };
 
-function sanitizeName(name: string, kind: ComponentKind): string {
-  const cleaned = name
+export function sanitizeName(name: string, kind: ComponentKind): string {
+  const cleaned = (name ?? "")
     .replace(/[^a-zA-Z0-9]/g, " ")
     .split(" ")
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join("");
-  return cleaned || kind;
+  // A TSX identifier can't start with a digit.
+  const identifier = /^[0-9]/.test(cleaned) ? `${kind}${cleaned}` : cleaned;
+  return identifier || kind;
 }
 
+export interface GenerateMeta {
+  pageId?: string;
+  pageName?: string;
+}
+
+/**
+ * Generate a component from a Figma node.
+ *
+ * IMPORTANT: `finalName` must already be sanitized and de-duplicated — it is
+ * baked into the TSX source (function name, props interface, displayName), so
+ * renaming after this point would desynchronize metadata from source. The
+ * parser finalizes all names *before* calling this.
+ */
 export function generateComponent(
   node: FigmaNode,
-  _opts: GenerateOptions = {},
+  finalName?: string,
+  meta: GenerateMeta = {},
 ): GeneratedComponent {
-  const kind = classifyComponent(node);
-  const name = sanitizeName(node.name, kind);
+  const { kind, via } = classifyComponentDetailed(node);
+  const name = finalName ?? sanitizeName(node.name, kind);
+  const origin: ComponentOrigin = via === "name" ? "extracted" : "inferred";
   const gen = GENERATORS[kind] ?? generateContainer;
-  return gen(node, name);
+  return {
+    ...gen(node, name),
+    origin,
+    sourceNodeId: node.id,
+    pageId: meta.pageId,
+    pageName: meta.pageName,
+  };
 }
 
 export function resetIdCounter(): void {

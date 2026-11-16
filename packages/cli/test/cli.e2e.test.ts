@@ -68,11 +68,18 @@ describe("forgeui CLI — end to end", () => {
       ]);
       expect(code).toBe(0);
       expect(stdout).toContain("components");
-      await stat(join(out, "component-library.tsx"));
       await stat(join(out, "tokens.json"));
+      await stat(join(out, "tokens.css"));
+      await stat(join(out, "tailwind.config.ts"));
+      await stat(join(out, "README.md"));
       await stat(join(out, "components", "Button.tsx"));
-      const lib = await readFile(join(out, "component-library.tsx"), "utf8");
-      expect(lib).toContain("export function");
+      const barrel = await readFile(join(out, "components", "index.ts"), "utf8");
+      expect(barrel).toContain('export { Button } from "./Button";');
+      const button = await readFile(join(out, "components", "Button.tsx"), "utf8");
+      expect(button).toContain("export function Button");
+      // Synthesized examples must be disclosed in the README.
+      const readme = await readFile(join(out, "README.md"), "utf8");
+      expect(readme).toContain("Origin");
     } finally {
       await rm(out, { recursive: true, force: true });
     }

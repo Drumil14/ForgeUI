@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/icons";
 import {
   downloadBlob,
+  downloadZip,
   exportComponentFile,
-  exportLibrary,
+  exportLibraryFiles,
 } from "@/lib/exporter/library";
 import {
   tokensToCss,
@@ -167,10 +168,9 @@ export function ExportTab({ component }: ExportTabProps) {
   };
 
   const handleDownloadLibrary = () => {
-    downloadBlob(
-      `${design.fileName.replace(/[^a-z0-9-]/gi, "-")}-library.tsx`,
-      exportLibrary(design),
-      "text/plain;charset=utf-8"
+    void downloadZip(
+      `${design.fileName.replace(/[^a-z0-9-]/gi, "-")}-library.zip`,
+      exportLibraryFiles(design)
     );
   };
 
@@ -236,9 +236,9 @@ export function ExportTab({ component }: ExportTabProps) {
         <p className="eyebrow text-fg-subtle">Bundle</p>
         <ActionRow
           icon={<IconPackage className="h-4 w-4" />}
-          title="Component library"
-          description={`${design.components.length} components + tokens, in one file.`}
-          primary={{ label: "Download all", onClick: handleDownloadLibrary }}
+          title="Component library (ZIP)"
+          description={`${design.components.length} components as separate .tsx files, plus a barrel index, token artifacts, and a README.`}
+          primary={{ label: "Download ZIP", onClick: handleDownloadLibrary }}
         />
       </div>
     </div>

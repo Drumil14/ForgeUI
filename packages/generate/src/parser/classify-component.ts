@@ -29,12 +29,30 @@ const NAME_HINTS: Array<{ kind: ComponentKind; patterns: RegExp[] }> = [
   { kind: "Icon", patterns: [/icon/i, /^ic[-_]/i] },
 ];
 
-export function classifyComponent(node: FigmaNode): ComponentKind {
+export interface Classification {
+  kind: ComponentKind;
+  /**
+   * How we decided: "name" means the designer's layer name told us (high
+   * confidence — the component is directly *extracted*); "structure" means we
+   * *inferred* it from shape/layout heuristics.
+   */
+  via: "name" | "structure";
+}
+
+export function classifyComponentDetailed(node: FigmaNode): Classification {
   // 1. Name-based — most reliable when designers have been careful.
   const name = node.name ?? "";
   for (const { kind, patterns } of NAME_HINTS) {
-    if (patterns.some((p) => p.test(name))) return kind;
+    if (patterns.some((p) => p.test(name))) return { kind, via: "name" };
   }
+  return { kind: classifyByStructure(node), via: "structure" };
+}
+
+export function classifyComponent(node: FigmaNode): ComponentKind {
+  return classifyComponentDetailed(node).kind;
+}
+
+function classifyByStructure(node: FigmaNode): ComponentKind {
 
   // 2. Structural shape.
   if (node.type === "TEXT") return "Text";

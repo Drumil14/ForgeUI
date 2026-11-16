@@ -3,13 +3,22 @@ import type { ComponentKind, GeneratedComponent } from "../types.js";
 
 /**
  * When the imported file doesn't yield a full set of common components, we
- * synthesize realistic placeholders so the workspace stays demonstrably
- * complete. The placeholders use the file's *real* extracted tokens so they
- * still feel like they belong to the same design system.
+ * synthesize demonstration examples so the workspace stays demonstrably
+ * complete. The examples use the file's *real* extracted tokens so they still
+ * feel like they belong to the same design system — but they are NOT extracted
+ * from the Figma file. Every component built here carries
+ * `origin: "synthesized"` and no `sourceNodeId`/`pageId`, and the UI is
+ * required to label them as examples.
  */
 
 let placeholderCounter = 0;
 const nextId = () => `p${++placeholderCounter}`;
+
+/** The fields templates fill in; origin is stamped on by the public API. */
+type PlaceholderDraft = Omit<
+  GeneratedComponent,
+  "origin" | "sourceNodeId" | "pageId" | "pageName"
+>;
 
 function pickPrimaryColor(tokens: DesignTokens): string {
   const primary = tokens.colors.find(
@@ -28,7 +37,7 @@ function pickRadius(tokens: DesignTokens): string {
 
 const TEMPLATES: Record<
   ComponentKind,
-  ((tokens: DesignTokens) => GeneratedComponent) | undefined
+  ((tokens: DesignTokens) => PlaceholderDraft) | undefined
 > = {
   Button: (tokens) => {
     const primary = pickPrimaryColor(tokens);
@@ -259,9 +268,19 @@ export function Badge({ children, tone = "neutral" }: BadgeProps) {
 export function synthesizePlaceholderComponents(
   kind: ComponentKind,
   tokens: DesignTokens,
+  usedNames?: ReadonlySet<string>,
 ): GeneratedComponent | null {
   const template = TEMPLATES[kind];
-  return template ? template(tokens) : null;
+  if (!template) return null;
+  const draft = template(tokens);
+  if (usedNames?.has(draft.name)) {
+    // An extracted component already claimed this name; rename the example
+    // everywhere it appears (metadata AND source stay in sync).
+    const renamed = `${draft.name}Example`;
+    draft.source = draft.source.replaceAll(draft.name, renamed);
+    draft.name = renamed;
+  }
+  return { ...draft, origin: "synthesized" };
 }
 
 export function resetPlaceholderCounter(): void {

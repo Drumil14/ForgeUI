@@ -136,13 +136,24 @@ export function Preview() {
               }}
             >
               <div className="rounded-lg border border-border bg-bg shadow-sm">
-                <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5">
+                  <p className="truncate font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
                     {selected.kind} · {selected.name}
+                    {selected.pageName ? ` · ${selected.pageName}` : ""}
                   </p>
-                  <p className="font-mono text-[10px] text-fg-subtle">
-                    {state.viewport}
-                  </p>
+                  <div className="flex flex-shrink-0 items-center gap-2">
+                    {selected.origin === "synthesized" && (
+                      <Badge
+                        tone="warning"
+                        title="Not extracted from Figma — a demonstration example built from this file's tokens"
+                      >
+                        Synthesized example
+                      </Badge>
+                    )}
+                    <p className="font-mono text-[10px] text-fg-subtle">
+                      {state.viewport}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex min-h-[240px] items-center justify-center p-6 ring-1 ring-inset ring-accent/0 transition-shadow">
                   <RenderComponent component={selected} />

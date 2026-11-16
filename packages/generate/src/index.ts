@@ -7,7 +7,11 @@
 
 export * from "./types.js";
 export * from "./tailwind-map.js";
-export { classifyComponent } from "./parser/classify-component.js";
+export {
+  classifyComponent,
+  classifyComponentDetailed,
+  type Classification,
+} from "./parser/classify-component.js";
 export { buildLayerTree } from "./parser/build-layer-tree.js";
 export {
   synthesizePlaceholderComponents,
@@ -18,6 +22,8 @@ export { buildTailwindClasses } from "./generator/build-classes.js";
 export {
   generateComponent,
   resetIdCounter,
+  sanitizeName,
+  type GenerateMeta,
 } from "./generator/generate-component.js";
 export { analyzeAccessibility } from "./analyzer/accessibility.js";
 export {
@@ -25,4 +31,9 @@ export {
   tokensToTailwindTheme,
   tokensToJson,
 } from "./exporter/tokens.js";
-export { exportLibrary, exportComponentFile } from "./exporter/library.js";
+export {
+  exportLibrary,
+  exportLibraryFiles,
+  exportComponentFile,
+  type ExportFile,
+} from "./exporter/library.js";
