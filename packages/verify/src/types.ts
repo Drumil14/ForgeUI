@@ -126,6 +126,15 @@ export interface VerifyReport {
   generatedAt: string;
   viewport: { width: number; height: number };
   config: VerifyConfig;
+  /**
+   * Visual artifacts for report viewers (attached by verify(); may be absent
+   * in budget-only CI runs or hand-trimmed reports).
+   */
+  artifacts?: {
+    screenshotDataUrl: string | null;
+    pageWidth: number;
+    pageHeight: number;
+  };
   summary: {
     total: number;
     errors: number;

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // The shared ForgeUI packages ship as workspace deps; Next transpiles them.
-  transpilePackages: ["@forgeui/core", "@forgeui/generate"],
+  transpilePackages: ["@forgeui/core", "@forgeui/generate", "@forgeui/verify"],
   // Serve the pre-generated `forgeui verify` report (public/demo.html) at /demo.
   async rewrites() {
     return [{ source: "/demo", destination: "/demo.html" }];

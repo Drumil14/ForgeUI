@@ -33,6 +33,12 @@ export function MarketingNav() {
           >
             How it works
           </Link>
+          <Link
+            href="/verify"
+            className="hidden rounded px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg sm:inline-block"
+          >
+            Verify
+          </Link>
           <a
             href="/demo"
             className="hidden rounded px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg sm:inline-block"
@@ -40,7 +46,7 @@ export function MarketingNav() {
             Live demo
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/Drumil14/ForgeUI"
             target="_blank"
             rel="noreferrer noopener"
             aria-label="GitHub"

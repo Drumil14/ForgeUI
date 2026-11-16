@@ -191,6 +191,28 @@ async function cmdVerify(p: Parsed): Promise<number> {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  // Viewport: a named preset or an explicit WxH.
+  const VIEWPORT_PRESETS: Record<string, { width: number; height: number }> = {
+    desktop: { width: 1280, height: 800 },
+    tablet: { width: 768, height: 1024 },
+    mobile: { width: 375, height: 812 },
+  };
+  let viewport: { width: number; height: number } | undefined;
+  const viewportFlag = flagStr(p.flags, "viewport");
+  if (viewportFlag) {
+    viewport = VIEWPORT_PRESETS[viewportFlag.toLowerCase()];
+    if (!viewport) {
+      const m = viewportFlag.match(/^(\d{3,4})x(\d{3,4})$/i);
+      if (m) viewport = { width: Number(m[1]), height: Number(m[2]) };
+    }
+    if (!viewport) {
+      console.error(
+        `${symbols.cross} --viewport must be desktop, tablet, mobile, or WxH (e.g. 1440x900).`,
+      );
+      return 2;
+    }
+  }
+
   const config: Partial<VerifyConfig> = {
     budget: Number.isFinite(budget) ? budget : 0,
     ignore,
@@ -232,7 +254,7 @@ async function cmdVerify(p: Parsed): Promise<number> {
   const spin2 = new Spinner().start(extraction ? "Matching against tokens…" : `Rendering ${color.gray(url)} with Playwright…`);
   let result;
   try {
-    result = await verify({ url, fileKey, tokens, config, extraction });
+    result = await verify({ url, fileKey, tokens, config, extraction, viewport });
   } catch (err) {
     spin2.fail(`Verification failed: ${(err as Error).message}`);
     return 1;
@@ -311,6 +333,7 @@ function usageVerify(): string {
     "  --file <key>        Figma file key (or path) providing the tokens.",
     "  --tokens <path>     Use a DesignTokens/Figma JSON directly instead of --file.",
     "  --budget <n>        Max error+warning violations before exit code 1 (default 0).",
+    "  --viewport <v>      desktop | tablet | mobile | WxH (default desktop, 1280x800).",
     "  --ignore <sel,...>  Comma-separated selectors/substrings to skip.",
     "  --tolerance <px>    Ignore spacing/radius diffs under this many px (default 1).",
     "  --out <dir>         Output directory (default: forgeui-verify)",

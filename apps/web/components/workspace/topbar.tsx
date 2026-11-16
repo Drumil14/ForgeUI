@@ -24,8 +24,14 @@ export function Topbar() {
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-1.5">
+        <Link
+          href="/verify"
+          className="hidden rounded px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg sm:inline-block focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          Verify
+        </Link>
         <a
-          href="https://github.com"
+          href="https://github.com/Drumil14/ForgeUI"
           target="_blank"
           rel="noreferrer noopener"
           aria-label="GitHub repository"

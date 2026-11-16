@@ -11,4 +11,5 @@ export { buildScales, nearestStep, offScale } from "./match/scales.js";
 export { extractPage, type ExtractOptions, type ExtractResult } from "./extract/index.js";
 export { buildReport, exitCodeFor } from "./report/report.js";
 export { renderHtml, type HtmlReportInput } from "./report/html.js";
+export { suggestFix, type FixSuggestion } from "./report/suggest.js";
 export { verify, type VerifyOptions, type VerifyResult } from "./verify.js";

@@ -1,4 +1,4 @@
-import type { DesignTokens } from "@forgeui/core";
+﻿import type { DesignTokens } from "@forgeui/core/browser";
 import {
   hexToRgb,
   parseCssColor,
@@ -7,7 +7,7 @@ import {
   compositeOver,
   rgbToHex,
   type Rgb,
-} from "@forgeui/core";
+} from "@forgeui/core/browser";
 import type {
   ComputedElement,
   Severity,
@@ -56,7 +56,7 @@ function nearestPalette(
 function resolveColor(css: string, backdrop: Rgb): (Rgb & { opaque: boolean }) | null {
   const parsed = parseCssColor(css);
   if (!parsed) return null;
-  if (parsed.a <= 0.02) return null; // fully transparent — nothing to check
+  if (parsed.a <= 0.02) return null; // fully transparent â€” nothing to check
   if (parsed.a >= 0.999) return { ...parsed, opaque: true };
   const composited = compositeOver(parsed, backdrop);
   return { ...composited, opaque: false };
@@ -84,7 +84,7 @@ function checkSpacing(
     ["padding-left", s.paddingLeft],
   ];
   // Auto-centering (`margin: 0 auto`) resolves to large, symmetric px margins
-  // that are a layout outcome, not a token decision — don't flag those.
+  // that are a layout outcome, not a token decision â€” don't flag those.
   const centeredX =
     s.marginLeft === s.marginRight && s.marginLeft > scales.maxSpacing;
   const centeredY =
@@ -108,7 +108,7 @@ function checkSpacing(
       selector: el.selector,
       property,
       found: formatPx(value),
-      message: `${property} is ${formatPx(value)}, off the spacing scale — nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
+      message: `${property} is ${formatPx(value)}, off the spacing scale â€” nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
       nearestToken: { name: nearest.name, value: formatPx(Number(nearest.value)) },
       box: el.box,
     });
@@ -144,7 +144,7 @@ function checkRadius(
       selector: el.selector,
       property,
       found: formatPx(value),
-      message: `${property} is ${formatPx(value)}, off the radius scale — nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
+      message: `${property} is ${formatPx(value)}, off the radius scale â€” nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
       nearestToken: { name: nearest.name, value: formatPx(Number(nearest.value)) },
       box: el.box,
     });
@@ -169,7 +169,7 @@ function checkFontSize(
     selector: el.selector,
     property: "font-size",
     found: formatPx(value),
-    message: `font-size is ${formatPx(value)}, off the type scale — nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
+    message: `font-size is ${formatPx(value)}, off the type scale â€” nearest token ${nearest.name} (${formatPx(Number(nearest.value))})`,
     nearestToken: { name: nearest.name, value: formatPx(Number(nearest.value)) },
     box: el.box,
   });
@@ -183,7 +183,7 @@ function checkColors(
 ): void {
   const backdrop = backdropRgb(el);
 
-  // Text color — only meaningful where the element renders text.
+  // Text color â€” only meaningful where the element renders text.
   if (el.rendersText) {
     const fg = resolveColor(el.styles.color, backdrop);
     if (fg) {
@@ -195,7 +195,7 @@ function checkColors(
           selector: el.selector,
           property: "color",
           found: rgbToHex(fg),
-          message: `text color ${rgbToHex(fg)} is not in the palette — nearest is ${near.name} (${near.hex}, ΔE ${near.distance.toFixed(3)})`,
+          message: `text color ${rgbToHex(fg)} is not in the palette â€” nearest is ${near.name} (${near.hex}, Î”E ${near.distance.toFixed(3)})`,
           nearestToken: { name: near.name, value: near.hex },
           box: el.box,
         });
@@ -203,7 +203,7 @@ function checkColors(
     }
   }
 
-  // Background color — only opaque-ish backgrounds are worth checking.
+  // Background color â€” only opaque-ish backgrounds are worth checking.
   const bgParsed = parseCssColor(el.styles.backgroundColor);
   if (bgParsed && bgParsed.a > 0.5) {
     const bg = resolveColor(el.styles.backgroundColor, backdrop);
@@ -216,7 +216,7 @@ function checkColors(
           selector: el.selector,
           property: "background-color",
           found: rgbToHex(bg),
-          message: `background ${rgbToHex(bg)} is not in the palette — nearest is ${near.name} (${near.hex}, ΔE ${near.distance.toFixed(3)})`,
+          message: `background ${rgbToHex(bg)} is not in the palette â€” nearest is ${near.name} (${near.hex}, Î”E ${near.distance.toFixed(3)})`,
           nearestToken: { name: near.name, value: near.hex },
           box: el.box,
         });
@@ -248,7 +248,7 @@ function checkContrast(
     selector: el.selector,
     property: "color",
     found: `${ratio.toFixed(2)}:1`,
-    message: `text contrast ${ratio.toFixed(2)}:1 fails WCAG AA (needs ${min.toFixed(1)}:1) — ${rgbToHex(fg)} on ${rgbToHex(backdrop)}`,
+    message: `text contrast ${ratio.toFixed(2)}:1 fails WCAG AA (needs ${min.toFixed(1)}:1) â€” ${rgbToHex(fg)} on ${rgbToHex(backdrop)}`,
     nearestToken: { name: `min ${min.toFixed(1)}:1`, value: `${ratio.toFixed(2)}:1` },
     box: el.box,
   });
@@ -257,7 +257,7 @@ function checkContrast(
 /**
  * The deterministic matching engine. Given the elements extracted from a page
  * and the Figma design tokens, produce the exact set of violations. No LLM, no
- * randomness — the same input always yields the same output.
+ * randomness â€” the same input always yields the same output.
  */
 export function matchPage(
   elements: ComputedElement[],

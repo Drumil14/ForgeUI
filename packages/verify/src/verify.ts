@@ -15,6 +15,8 @@ export interface VerifyOptions {
   /** Or provide a client + fileKey to load and extract tokens from Figma. */
   client?: FigmaClient;
   config?: Partial<VerifyConfig>;
+  /** Browser viewport for extraction (default 1280×800 desktop). */
+  viewport?: { width: number; height: number };
   /**
    * Inject a pre-computed extraction (used by tests to run the full pipeline
    * without a browser). When omitted, Playwright extracts the live page.
@@ -51,6 +53,7 @@ export async function verify(opts: VerifyOptions): Promise<VerifyResult> {
     (await extractPage(opts.url, {
       ignore: config.ignore,
       ignoreIframes: config.ignoreIframes,
+      viewport: opts.viewport,
     }));
 
   const violations = matchPage(extraction.elements, tokens, config);
@@ -63,6 +66,11 @@ export async function verify(opts: VerifyOptions): Promise<VerifyResult> {
     elementsChecked: extraction.elements.length,
     violations,
   });
+  report.artifacts = {
+    screenshotDataUrl: extraction.screenshotDataUrl,
+    pageWidth: extraction.pageWidth,
+    pageHeight: extraction.pageHeight,
+  };
 
   const html = renderHtml({
     report,

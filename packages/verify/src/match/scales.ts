@@ -1,10 +1,10 @@
-import type { DesignTokens } from "@forgeui/core";
+﻿import type { DesignTokens } from "@forgeui/core/browser";
 import type { NearestToken } from "../types.js";
 
 /**
  * Turn the design tokens into the lookup structures the matcher needs:
  * numeric scales (spacing / font-size / radius) and a color palette. Building
- * these once per run keeps matching O(elements × tokens) and fully deterministic.
+ * these once per run keeps matching O(elements Ã— tokens) and fully deterministic.
  */
 
 export interface NumericStep {
