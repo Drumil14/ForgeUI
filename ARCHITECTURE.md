@@ -1,178 +1,182 @@
 # ForgeUI Architecture
 
-This document describes ForgeUI's architecture: first the **original** single-app
-design (as explored in Phase 0), then the **target monorepo** the codebase is
-being refactored into so a new `verify` engine can share the same Figma/token core.
-
----
-
-## 1. Original architecture (pre-refactor)
-
-ForgeUI started life as a single **Next.js 15 (App Router)** application living in
-`forgeui/`. It turns a Figma file URL into an accessible React + Tailwind component
-library, entirely client-visible but with the Figma token kept server-side.
-
-### Data flow
+ForgeUI is an npm-workspaces monorepo with four framework-free packages and one
+Next.js app. The guiding constraint everywhere: **one representation, consumed
+twice is better than two representations kept in sync** — the preview executes
+the generated code, the exporters and the CLI share one file-set builder, and
+the verify matcher and the web report viewer share one violation model.
 
 ```
-Figma URL
-   │  (browser)
-   ▼
-POST /api/import  ──────────────────────────────► app/api/import/route.ts
-   │  1. parseFigmaUrl(url)            utils/figma-url.ts   → { fileKey }
-   │  2. fetchFigmaFile(fileKey, key)  services/figma.ts    → FigmaFileResponse (raw REST JSON)
-   │  3. parseFigmaFile(file, key)     lib/parser/index.ts  → ParsedDesign
-   ▼
-ParsedDesign (JSON) ───────────────────────────► workspace UI (hooks/use-design, components/workspace/*)
-```
-
-`parseFigmaFile` is the heart of the pipeline. It runs six deterministic steps:
-
-1. **`extractTokens(document)`** — `lib/parser/extract-tokens.ts`. Walks the whole
-   node tree accumulating colors (from `fills`), typography (from `TEXT` `style`),
-   spacing (auto-layout padding + `itemSpacing`), radii (`cornerRadius`), and
-   shadows (`effects`). Counts usage, ranks, and names each token (Tailwind-flavoured
-   50–950 color scale, semantic type roles, etc.). Output: `DesignTokens`.
-2. **`collectGenerableNodes` + `generateComponent`** — promotes "interesting"
-   descendants (Button/Card/Input/Badge/Navbar/Footer/Hero) into their own
-   `GeneratedComponent`. Names are sanitized and de-duplicated.
-3. **`synthesizePlaceholderComponents`** — `lib/parser/placeholder.ts`. If the file
-   lacks a Button/Card/Input/Badge, a realistic placeholder is synthesized from the
-   file's *own* extracted tokens so the workspace is never empty.
-4. **`buildLayerTree`** — `lib/parser/build-layer-tree.ts`. Depth/breadth-capped
-   tree for the Layers panel.
-5. **`buildPages`** — maps Figma canvases to page records.
-6. **`analyzeAccessibility`** — `lib/analyzer/accessibility.ts`. Heuristic WCAG-ish
-   audit (contrast, heading order, labels, semantic HTML, keyboard) over the
-   generated components + tokens.
-
-### Where the reusable logic lives
-
-| Concern | Files | Reusable by `verify`? |
-| --- | --- | --- |
-| Figma REST client + typed errors | `services/figma.ts` | **Yes** |
-| Figma URL/file-key parsing | `utils/figma-url.ts` | **Yes** |
-| Raw Figma API types | `types/figma.ts` | **Yes** |
-| Token extraction | `lib/parser/extract-tokens.ts` | **Yes** (verify needs the token *model*) |
-| Color math (hex/rgba, luminance, contrast, classify) | `utils/color.ts` | **Yes** |
-| Token/design types | `types/index.ts` (partly) | **Yes** (token half) |
-| Tailwind px-snapping maps | `utils/tailwind-map.ts` | generate-only |
-| Component classification + generation | `lib/parser/classify-*`, `lib/generator/*` | generate-only |
-| Accessibility analyzer | `lib/analyzer/accessibility.ts` | generate-only |
-| Exporters | `lib/exporter/*` | generate-only |
-| Web workspace UI | `app/**`, `components/**`, `hooks/**` | app-only |
-
-**Conclusion of Phase 0:** the Figma/token logic is *not* deeply tangled into React —
-it is already a set of pure functions operating on plain data (`FigmaFileResponse` →
-`DesignTokens`). The only coupling is the `@/` path alias and the fact that it all
-lives inside the Next.js app. It is a clean candidate for extraction into a shared,
-framework-free package.
-
----
-
-## 2. Target architecture (monorepo)
-
-The project becomes an **npm-workspaces monorepo**. The Figma client + token model
-move into a framework-free `@forgeui/core`; generation stays in `@forgeui/generate`;
-the new `@forgeui/verify` and a shared `@forgeui/cli` are added; the Next.js app
-becomes `apps/web` and consumes the packages.
-
-```
-forgeui/                       ← monorepo root
-├─ package.json                ← workspaces + root scripts (test, build)
-├─ tsconfig.base.json
-├─ vitest.config.ts
+forgeui/
 ├─ packages/
-│  ├─ core/        @forgeui/core     Figma types, client (HTTP + fixture), URL parse,
-│  │                                 token model + extraction, perceptual color math
-│  ├─ generate/    @forgeui/generate parser → generator → analyzer → exporter (uses core)
-│  ├─ verify/      @forgeui/verify   extract (Playwright) · match (deterministic) · report
-│  └─ cli/         @forgeui/cli      `forgeui generate` + `forgeui verify` (bin: forgeui)
-└─ apps/
-   └─ web/         the existing Next.js workspace, now importing the packages
+│  ├─ core/       @forgeui/core      Figma types + client, URL parse, token model,
+│  │                                 perceptual color math.  ./browser = no fs/net client.
+│  ├─ generate/   @forgeui/generate  classify → Design IR → TSX generation → a11y
+│  │                                 heuristics → export file set
+│  ├─ verify/     @forgeui/verify    extract (Playwright) → match (deterministic) →
+│  │                                 report + fix suggestions.  ./browser = no Playwright.
+│  └─ cli/        @forgeui/cli       forgeui generate · forgeui verify
+├─ apps/web/                         Next.js 15 workspace + verification workbench
+└─ fixtures/                         committed Figma fixture, drifted demo page, tokens
 ```
-
-### `@forgeui/core` (shared)
-
-The single source of truth for "what does this Figma file's design system look like."
-
-- `figma/types.ts` — raw Figma REST types (from `types/figma.ts`).
-- `figma/url.ts` — `parseFigmaUrl` (from `utils/figma-url.ts`).
-- `figma/client.ts` — a `FigmaClient` **interface** with two implementations:
-  - `HttpFigmaClient` — the real REST client (from `services/figma.ts`).
-  - `FixtureFigmaClient` — reads a local JSON file, so **everything is testable
-    without a Figma API token**. This is the seam where real credentials plug in.
-- `tokens/types.ts` — `DesignTokens`, `ColorToken`, `SpacingToken`, … (token half of
-  the old `types/index.ts`).
-- `tokens/extract.ts` — `extractTokens` (from `lib/parser/extract-tokens.ts`).
-- `tokens/color.ts` — hex/rgba/luminance/**contrast** helpers plus new **perceptual
-  color** functions (sRGB → OKLab, `oklabDistance`) used by verify to detect rogue
-  colors in a perceptually-uniform space rather than raw hex.
-
-### `@forgeui/generate`
-
-Everything that turns a parsed Figma file into React source, unchanged in behaviour:
-parser (`classify`, `build-layer-tree`, `placeholder`, `index`), generator
-(`build-classes`, `generate-component`, `tailwind-map`), analyzer, exporters, and the
-`GeneratedComponent`/`ParsedDesign` types. It depends on `@forgeui/core`. A **golden
-snapshot test** over the built-in sample Figma fixture proves the refactor is
-behaviour-preserving.
-
-### `@forgeui/verify` (new — see below)
-
-### `@forgeui/cli`
-
-A thin command layer exposing both flows behind one `forgeui` binary:
-
-```
-forgeui generate <figma-file> [--file-key] [--out]
-forgeui verify   <url> --file <figma-file-key> [--budget N] [--ignore <selectors>]
-```
-
-### `apps/web`
-
-The existing Next.js app. `@/*` still resolves to the app root; the app's former
-`lib/`, `types/`, `utils/`, `services/` become thin barrels that re-export from the
-packages (plus app-only UI types). No user-facing behaviour changes.
 
 ---
 
-## 3. The `verify` engine (Phase 2)
+## 1. `@forgeui/core`
 
-`forgeui verify` diffs a **live rendered web page** against the **Figma design tokens**
-and reports where the implementation drifted from the design system.
+The shared vocabulary for "what does this design system look like."
+
+- `figma/types.ts` — the subset of the Figma REST schema ForgeUI consumes.
+- `figma/client.ts` — `FigmaClient` interface with two implementations:
+  - `HttpFigmaClient`: REST client with typed errors (`auth` / `not_found` /
+    `rate_limit` / `network`), a 30s abort timeout, and `getImageUrls()` for
+    the Images API (PNG for bitmaps, SVG for vectors).
+  - `FixtureFigmaClient`: reads committed JSON — the seam that makes the whole
+    toolchain testable and demoable with zero credentials.
+- `tokens/` — `DesignTokens` model, `extractTokens()` (walks the node tree,
+  ranks and names colors/type/spacing/radii/shadows), and color math including
+  sRGB → OKLab conversion used by verify's perceptual color matching.
+- **`@forgeui/core/browser`** re-exports everything except the client, so
+  browser bundles never see `node:fs`.
+
+## 2. `@forgeui/generate`
 
 ```
-URL ──► extract/ (Playwright) ──► ComputedElement[]  ┐
-                                                      ├─► match/ ──► Violation[] ──► report/
-figma-file-key ──► @forgeui/core extractTokens ──► DesignTokens ┘                    ├─ report.json (CI, exit code)
-                                                                                     └─ report.html (visual)
+FigmaNode ──classifyComponentDetailed──► { kind, via: name|structure }
+    │
+    ├──buildIR──► IRNode (hierarchy, auto-layout, spacing, typography,
+    │             fills, radius, text, componentId, source node identity)
+    │
+    └──generateComponent(finalName)──► GeneratedComponent { source, classes,
+                  props, origin, sourceNodeId, pageId/pageName, ir }
 ```
 
-- **`extract/`** — Playwright loads the URL, walks the rendered DOM, and records per
-  element: `color`, `background`, `font-size`, `font-weight`, `line-height`,
-  `padding`, `margin`, `gap`, `border-radius`, a CSS selector path, and the bounding
-  box. Pure data out — no matching logic here, so the matcher is testable against
-  hand-authored fixtures without a browser.
-- **`match/`** — a **deterministic, LLM-free** engine. Loads tokens via
-  `@forgeui/core`, builds scales (spacing, type, radii, palette), and for each
-  computed value finds the nearest token. It flags:
-  - **off-scale spacing/radius** — e.g. 13px where the scale is 4/8/12/16.
-  - **rogue color** — not within a perceptual-distance threshold of any palette color
-    (compared in **OKLab**, not raw hex).
-  - **off-scale font-size** — not in the type scale.
-  - **WCAG AA contrast failures** between text and its resolved background.
-  - Thresholds are configurable (ignore sub-1px diffs, ignore selectors/iframes).
-- **`report/`** — `report.json` (machine-readable, severity levels, CI budget → exit
-  code 1 when violations exceed budget) and `report.html` (screenshot with clickable
-  violation overlays, sidebar grouped by type, severity filter).
+Decisions that matter:
 
-### Testability / credentials
+- **Names are finalized before source generation.** The parser sanitizes and
+  de-duplicates all component names first, then bakes the final name into the
+  TSX (function, props interface, displayName). Filename, barrel export, and
+  metadata can never disagree — this was a real bug class (a `Button2` whose
+  source still exported `Button`).
+- **Provenance is first-class.** `origin` is `"extracted"` (designer-named
+  layer), `"inferred"` (structural heuristics), or `"synthesized"` (a
+  demonstration example built from the file's own tokens when a common kind is
+  missing). Synthesized examples carry no `sourceNodeId`/`pageId`, are never
+  listed on a Figma page, are grouped separately in the UI, and are disclosed
+  in the export README. Pages list only components whose source node lives on
+  that canvas.
+- **The Design IR** is the shared intermediate representation. Canonical kinds
+  (Button, Input, Card, Navbar, Hero, Footer, Badge) use accessible templates
+  whose root classes derive from the node; Containers/Sections emit markup
+  recursively from the IR — real hierarchy, semantic heading levels chosen by
+  font size, labeled image placeholders — instead of a placeholder `<div>`.
+- **The parser reports what it cannot translate**: `ParsedDesign.stats`
+  counts nodes by type and lists unsupported features (gradients, image
+  fills, blurs, inner shadows, slices) with counts; `ParsedDesign.assets`
+  carries exportable bitmap/vector nodes for the Images API.
+- `exportLibraryFiles()` is the **single source of truth for exports**:
+  `components/<Name>.tsx`, `components/index.ts`, `tokens.css`, `tokens.json`,
+  `tailwind.config.ts`, `README.md`. The web ZIP (jszip) and the CLI's on-disk
+  output both consume it.
 
-Nothing in the test suite requires a Figma token or network:
-- The Figma layer is mocked behind `FigmaClient`; tests use `FixtureFigmaClient` with
-  committed fixture JSON.
-- The matcher runs on committed `ComputedElement[]` fixtures (deterministic).
-- **To use real Figma data:** set `FIGMA_API_KEY` and pass a real `--file` key; the
-  CLI swaps `FixtureFigmaClient` for `HttpFigmaClient`. This is the only place real
-  credentials are needed.
+## 3. The sandboxed preview (apps/web)
+
+The preview renders the **generated source itself** — not a lookalike:
+
+```
+GeneratedComponent.source (TSX)
+   │  sucrase: typescript + jsx + imports → CommonJS     (parent, in-browser)
+   ▼
+postMessage {code, props, themeCss}
+   ▼
+<iframe sandbox="allow-scripts" srcDoc>        ← opaque origin: no cookies,
+   runtime.js (committed esbuild bundle):        storage, or parent DOM access
+   React 19 + ReactDOM + @tailwindcss/browser + axe-core
+   - require() shim resolves ONLY react/react-dom
+   - renders through an error boundary, reports height
+   - compiles Tailwind utilities at runtime (incl. bg-[#hex] arbitrary values)
+   - theme maps the semantic class vocabulary; accent comes from the
+     imported design's own primary token
+   - runs axe-core (WCAG A/AA + best-practice) on the rendered DOM and
+     posts findings back
+```
+
+`scripts/build-preview-runtime.mjs` builds the runtime in `prebuild`; the
+bundle is also committed so dev works without a build step. The Props tab
+edits enum/boolean/string props live; overrides re-render the sandbox.
+Preview/export consistency is enforced by tests that transpile, evaluate, and
+`renderToStaticMarkup` every generated component through the same transform,
+plus a strict-mode `tsc` compile of the full export in a clean temp project.
+
+## 4. `@forgeui/verify`
+
+```
+URL ──extract (Playwright)──► ComputedElement[] + screenshot ┐
+                                                             ├─► matchPage ──► Violation[]
+DesignTokens (core) ──buildScales──► spacing/type/radius/palette scales ┘        │
+                                                                                 ▼
+                     report.json (summary, budget verdict, artifacts) · report.html (standalone)
+                     suggestFix(violation) → deterministic CSS + Tailwind correction
+```
+
+- The extractor records computed styles, text, effective (ancestor-resolved)
+  backgrounds, and bounding boxes. It holds **no matching logic**, so the
+  matcher is unit-testable against committed element fixtures.
+- The matcher is deterministic and LLM-free: off-scale spacing/radius
+  (tolerance-aware, auto-centering margins excluded), type-scale drift, rogue
+  colors by OKLab ΔE against the palette, and WCAG AA contrast with the
+  large-text exception. Same inputs, same report — always.
+- `report.json` embeds `artifacts` (screenshot data URL + page dimensions) so
+  a single portable file drives the web viewer's overlays.
+- **`@forgeui/verify/browser`** exports types + matcher + report + suggestions
+  without importing the extract module, so the web bundle never pulls
+  Playwright.
+
+### Why there is no hosted scanner
+
+A server endpoint that fetches arbitrary URLs is an SSRF primitive — it can be
+aimed at internal networks, cloud metadata services, and redirect chains from
+the host's network position. Doing this safely needs egress isolation, DNS
+pinning, and per-scan sandboxing that this deployment does not control, so the
+product decision is: **scans run via the CLI on machines the user controls;
+the web app renders reports** (drag-and-drop a `report.json`, parsed locally,
+or the committed demo fixture, which is labeled as pre-generated). CI
+integration uses `--budget` for exit-code gating.
+
+## 5. `apps/web`
+
+- **Workspace**: left explorer (project / pages / layers / assets /
+  components / tokens), center sandboxed canvas (viewports, zoom), right
+  inspector (code, classes, a11y, live props, export). Panels resize via ARIA
+  separator dividers (pointer + arrow keys, persisted); `1/2/3`, `+/−/0`,
+  `j/k` keyboard shortcuts; stacked tabs under 1024px.
+- **Accessibility reporting is tiered**: axe-core rendered-DOM findings
+  (strongest), static heuristics (early warning), manual checklist — with an
+  explicit "not WCAG certification" statement.
+- **Demo honesty**: the built-in sample is the committed fixture run through
+  the real parser at module load (it cannot drift from the engine), and the
+  workspace banner says so. The `/verify` demo report is a real engine run
+  over the committed, deliberately-drifted demo page, labeled as a fixture.
+- **Import reliability**: AbortController with user-visible cancel, 45s
+  timeout, request sequencing so a stale response can never overwrite a newer
+  import, and one retry for transient failures (network / 429 / 5xx).
+- `/api/import` is the only server surface: validates the URL, fetches with
+  the server-side key, parses, best-effort resolves asset URLs, and returns
+  plain data.
+
+## 6. Testing strategy
+
+Everything runs from committed fixtures — no Figma token, no network:
+
+| Layer | What locks it |
+| --- | --- |
+| Token extraction + color math | unit tests (core) |
+| Parser behaviour | golden snapshot + regression suites (naming-before-codegen, page provenance, synthesized labeling) |
+| Generated code validity | transpile + evaluate + render every component (the preview's exact pipeline) **and** strict `tsc` on the full export |
+| Matcher | 20 unit tests over committed `ComputedElement[]` fixtures |
+| Fix suggestions / report | unit tests |
+| CLI | end-to-end spawn tests, including a live Playwright verify of the demo page and budget exit codes |
+| Extraction | live Playwright over `fixtures/demo/index.html`, including a determinism test (two extractions must be identical) |
+
+CI (`.github/workflows/ci.yml`) runs typecheck, lint, the full suite, the
+production build, and a dogfooded verify budget gate.

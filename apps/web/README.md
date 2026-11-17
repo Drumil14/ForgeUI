@@ -1,18 +1,20 @@
-# ForgeUI
+# ForgeUI — web app
 
-> Figma → production-ready React + Tailwind, with an accessibility audit included.
+> The Next.js workspace for the ForgeUI toolchain. Monorepo overview, CLI, and
+> verify engine docs live in the [root README](../../README.md).
 
-ForgeUI is a portfolio-grade Next.js 15 app that turns Figma files into accessible
-React components and Tailwind design tokens. Paste a Figma file URL, get back:
+Paste a Figma file URL (requires a server-side `FIGMA_API_KEY`), get back:
 
-- A parsed component library (Buttons, Cards, Navbars, Heroes, Inputs, Badges, Footers)
+- A parsed component library with provenance (extracted / inferred / synthesized)
 - Extracted design tokens — colors, typography, spacing, radii, shadows
-- A live preview with desktop/tablet/mobile viewports and zoom
-- An inspector with the generated source, Tailwind classes, props, and a11y report
-- Exports for individual components, token files, or the full library
+- A sandboxed preview that executes the actual generated code, with live props,
+  desktop/tablet/mobile viewports, and zoom
+- An inspector with the generated source, Tailwind classes, axe-core + heuristic
+  accessibility findings, and ZIP export
+- A /verify workbench that renders `forgeui verify` reports interactively
 
-This is a frontend engineering showcase — no database, no auth, nothing to host.
-The whole app runs locally with one environment variable.
+No database, no auth. The workspace loads a committed sample fixture (parsed by
+the real engine) without any configuration.
 
 ---
 
