@@ -3,16 +3,29 @@ import { HttpFigmaClient } from "@forgeui/core";
 import { FigmaApiError } from "@/services/figma";
 import { parseFigmaUrl } from "@/utils/figma-url";
 import { parseFigmaFile } from "@/lib/parser";
+import { checkImportAccess } from "@/lib/import-guard";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/import
  * Body: { url: string }
  * Returns: ParsedDesign | { error: { message, kind } }
  *
- * Server-side only — the FIGMA_API_KEY never reaches the client.
+ * Server-side only — the FIGMA_API_KEY never reaches the client. Live imports
+ * are gated (see import-guard.ts) and rate limited so an anonymous caller
+ * cannot abuse the deployer's key to read arbitrary files or exhaust quota.
  */
 
 export const runtime = "nodejs";
+
+/** Up to 10 live-import attempts per client per minute. */
+const RATE_LIMIT = { limit: 10, windowMs: 60_000 };
+
+function clientIp(req: NextRequest): string {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
+}
 
 export async function POST(req: NextRequest) {
   let body: { url?: string };
@@ -49,6 +62,37 @@ export async function POST(req: NextRequest) {
         },
       },
       { status: 400 },
+    );
+  }
+
+  // Throttle probing before we consult the allowlist or touch the key.
+  const limit = rateLimit(`import:${clientIp(req)}`, RATE_LIMIT);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      {
+        error: {
+          message: `Too many import requests. Try again in ${limit.retryAfterSec}s.`,
+          kind: "rate_limit",
+        },
+      },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } },
+    );
+  }
+
+  // Authorization gate: secure-by-default. An anonymous caller must not be
+  // able to use the deployer's key to read files they aren't authorized to.
+  const access = checkImportAccess(parsed.fileKey, {
+    allowedFileKeys: process.env.FIGMA_ALLOWED_FILE_KEYS,
+    publicImport: process.env.FIGMA_IMPORT_PUBLIC,
+  });
+  if (!access.allowed) {
+    const message =
+      access.reason === "not-allowlisted"
+        ? "This Figma file isn't on this deployment's allowlist of importable files. Explore the sample workspace, or run ForgeUI locally / via the CLI with your own FIGMA_API_KEY."
+        : "Live Figma import is disabled on this deployment. Explore the sample workspace, or run ForgeUI locally / via the CLI with your own FIGMA_API_KEY.";
+    return NextResponse.json(
+      { error: { message, kind: "forbidden" } },
+      { status: 403 },
     );
   }
 
