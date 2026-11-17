@@ -97,7 +97,14 @@ export function Preview() {
           </Badge>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <p
+            className="hidden font-mono text-[10px] text-fg-subtle xl:block"
+            title="Keyboard shortcuts"
+            aria-hidden="true"
+          >
+            1·2·3 viewport&ensp;j/k component&ensp;+/− zoom
+          </p>
           {/* Zoom controls */}
           <div className="flex items-center rounded-md border border-border p-0.5">
             <button
