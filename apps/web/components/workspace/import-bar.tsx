@@ -48,7 +48,7 @@ export function ImportBar() {
               setUrl(e.target.value);
               if (localError) setLocalError(null);
             }}
-            placeholder="https://figma.com/design/abc123/My-Design"
+            placeholder="https://figma.com/design/aBcDeFgHiJkLmNoPqRsTuV/My-Design"
             aria-invalid={!!message}
             aria-describedby={message ? "figma-url-error" : undefined}
             disabled={isLoading}

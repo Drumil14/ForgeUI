@@ -27,6 +27,14 @@ describe("parseFigmaUrl", () => {
     expect(parseFigmaUrl("https://figma.com/design/KEY12345/x")?.fileKey).toBe("KEY12345");
     expect(parseFigmaUrl("AbCdEf123456")?.fileKey).toBe("AbCdEf123456");
   });
+  it("accepts the example URL shown in the import-bar placeholder", () => {
+    // Guards against showing users an example that the parser would reject
+    // (apps/web/components/workspace/import-bar.tsx placeholder).
+    expect(
+      parseFigmaUrl("https://figma.com/design/aBcDeFgHiJkLmNoPqRsTuV/My-Design")
+        ?.fileKey,
+    ).toBe("aBcDeFgHiJkLmNoPqRsTuV");
+  });
   it("rejects non-figma URLs and garbage", () => {
     expect(parseFigmaUrl("https://example.com/file/x/y")).toBeNull();
     expect(parseFigmaUrl("not a url")).toBeNull();
