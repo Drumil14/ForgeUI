@@ -7,7 +7,12 @@ import {
   useRef,
   useState,
 } from "react";
-import type { DesignTokens, GeneratedComponent } from "@/types";
+import type {
+  AxeComponentResult,
+  AxeFinding,
+  DesignTokens,
+  GeneratedComponent,
+} from "@/types";
 import { transpileComponent } from "@/lib/preview/transpile";
 import { buildPreviewThemeCss } from "@/lib/preview/theme";
 import { samplePropsFor } from "@/lib/preview/sample-props";
@@ -27,7 +32,13 @@ import { samplePropsFor } from "@/lib/preview/sample-props";
 type RuntimeMessage =
   | { type: "forgeui:ready" }
   | { type: "forgeui:rendered"; height: number }
-  | { type: "forgeui:error"; message: string };
+  | { type: "forgeui:error"; message: string }
+  | {
+      type: "forgeui:axe";
+      violations: AxeFinding[];
+      passes: number;
+      incomplete: number;
+    };
 
 const SRCDOC = `<!doctype html>
 <html>
@@ -54,6 +65,8 @@ interface SandboxPreviewProps {
   propsOverrides?: Record<string, unknown>;
   /** Fired whenever the runtime reports status (for toolbar indicators). */
   onStatus?: (status: PreviewStatus, detail?: string) => void;
+  /** Fired when the in-sandbox axe-core audit of the rendered DOM completes. */
+  onAxeResult?: (result: AxeComponentResult) => void;
 }
 
 export function SandboxPreview({
@@ -61,6 +74,7 @@ export function SandboxPreview({
   tokens,
   propsOverrides,
   onStatus,
+  onAxeResult,
 }: SandboxPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
@@ -107,11 +121,18 @@ export function SandboxPreview({
       } else if (data.type === "forgeui:error") {
         setError(data.message);
         onStatus?.("error", data.message);
+      } else if (data.type === "forgeui:axe") {
+        onAxeResult?.({
+          violations: data.violations,
+          passes: data.passes,
+          incomplete: data.incomplete,
+          completedAt: Date.now(),
+        });
       }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [onStatus]);
+  }, [onStatus, onAxeResult]);
 
   // (Re-)render when the runtime is ready or inputs change.
   useEffect(() => {

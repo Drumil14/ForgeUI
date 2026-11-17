@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type {
+  AxeComponentResult,
   ParsedDesign,
   SidebarTab,
   Viewport,
@@ -40,6 +41,9 @@ interface DesignContextValue {
   propsOverrides: Record<string, Record<string, unknown>>;
   setPropOverride: (componentId: string, prop: string, value: unknown) => void;
   resetPropOverrides: (componentId: string) => void;
+  /** axe-core results per component id, reported by the sandboxed preview. */
+  axeResults: Record<string, AxeComponentResult>;
+  setAxeResult: (componentId: string, result: AxeComponentResult) => void;
 }
 
 const DesignContext = createContext<DesignContextValue | null>(null);
@@ -86,6 +90,17 @@ export function DesignProvider({
     [],
   );
 
+  const [axeResults, setAxeResults] = useState<
+    Record<string, AxeComponentResult>
+  >({});
+
+  const setAxeResult = useCallback(
+    (componentId: string, result: AxeComponentResult) => {
+      setAxeResults((prev) => ({ ...prev, [componentId]: result }));
+    },
+    [],
+  );
+
   const resetPropOverrides = useCallback((componentId: string) => {
     setPropsOverrides((prev) => {
       if (!(componentId in prev)) return prev;
@@ -111,6 +126,8 @@ export function DesignProvider({
       propsOverrides,
       setPropOverride,
       resetPropOverrides,
+      axeResults,
+      setAxeResult,
     }),
     [
       design,
@@ -124,6 +141,8 @@ export function DesignProvider({
       propsOverrides,
       setPropOverride,
       resetPropOverrides,
+      axeResults,
+      setAxeResult,
     ],
   );
 

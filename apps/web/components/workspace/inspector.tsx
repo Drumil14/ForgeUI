@@ -90,7 +90,7 @@ export function Inspector() {
             <ClassesTab component={selected} />
           </TabPanel>
           <TabPanel value="a11y">
-            <A11yTab />
+            <A11yTab component={selected} />
           </TabPanel>
           <TabPanel value="props">
             <PropsTab component={selected} />

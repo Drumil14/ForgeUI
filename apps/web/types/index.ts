@@ -26,6 +26,24 @@ export type {
   LayerNode,
 } from "@forgeui/generate";
 
+// --- Rendered-DOM accessibility results (axe-core, from the preview) ------
+
+export interface AxeFinding {
+  id: string;
+  impact: string | null;
+  help: string;
+  description: string;
+  helpUrl: string;
+  nodes: Array<{ target: string; html: string }>;
+}
+
+export interface AxeComponentResult {
+  violations: AxeFinding[];
+  passes: number;
+  incomplete: number;
+  completedAt: number;
+}
+
 // --- App-only workspace UI state -----------------------------------------
 
 export type Viewport = "desktop" | "tablet" | "mobile";

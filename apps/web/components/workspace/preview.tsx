@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { SandboxPreview } from "./sandbox-preview";
 import { cn } from "@/utils/cn";
 import type { Viewport } from "@/types";
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 
 const VIEWPORT_WIDTHS: Record<Viewport, number> = {
   desktop: 1280,
@@ -39,10 +39,18 @@ const VIEWPORTS: ViewportButton[] = [
 ];
 
 export function Preview() {
-  const { design, state, setViewport, setZoom, propsOverrides } = useDesign();
+  const { design, state, setViewport, setZoom, propsOverrides, setAxeResult } =
+    useDesign();
 
   const selected =
     design?.components.find((c) => c.id === state.selectedComponentId) ?? null;
+  const selectedId = selected?.id;
+  const onAxeResult = useCallback(
+    (result: Parameters<typeof setAxeResult>[1]) => {
+      if (selectedId) setAxeResult(selectedId, result);
+    },
+    [selectedId, setAxeResult],
+  );
 
   const zoomOut = () => setZoom(Math.max(50, state.zoom - 10));
   const zoomIn = () => setZoom(Math.min(200, state.zoom + 10));
@@ -161,6 +169,7 @@ export function Preview() {
                     component={selected}
                     tokens={design?.tokens ?? null}
                     propsOverrides={propsOverrides[selected.id]}
+                    onAxeResult={onAxeResult}
                   />
                 </div>
               </div>

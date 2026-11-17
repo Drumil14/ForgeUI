@@ -18,6 +18,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
+import axe from "axe-core";
 import "@tailwindcss/browser";
 
 interface RenderMessage {
@@ -30,10 +31,25 @@ interface RenderMessage {
   themeCss: string;
 }
 
+interface AxeFindingPayload {
+  id: string;
+  impact: string | null;
+  help: string;
+  description: string;
+  helpUrl: string;
+  nodes: Array<{ target: string; html: string }>;
+}
+
 type ParentMessage =
   | { type: "forgeui:ready" }
   | { type: "forgeui:rendered"; height: number }
-  | { type: "forgeui:error"; message: string };
+  | { type: "forgeui:error"; message: string }
+  | {
+      type: "forgeui:axe";
+      violations: AxeFindingPayload[];
+      passes: number;
+      incomplete: number;
+    };
 
 function post(msg: ParentMessage) {
   window.parent.postMessage(msg, "*");
@@ -123,6 +139,46 @@ function reportHeight() {
   post({ type: "forgeui:rendered", height: h });
 }
 
+// --- Accessibility audit (axe-core over the real rendered DOM) -------------
+
+let axeSeq = 0;
+
+function runAxe() {
+  const container = document.getElementById("root");
+  if (!container || container.childElementCount === 0) return;
+  const seq = ++axeSeq;
+  axe
+    .run(container, {
+      runOnly: {
+        type: "tag",
+        values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
+      },
+      resultTypes: ["violations", "passes", "incomplete"],
+    })
+    .then((results) => {
+      if (seq !== axeSeq) return; // a newer render superseded this audit
+      post({
+        type: "forgeui:axe",
+        violations: results.violations.map((v) => ({
+          id: v.id,
+          impact: v.impact ?? null,
+          help: v.help,
+          description: v.description,
+          helpUrl: v.helpUrl,
+          nodes: v.nodes.slice(0, 8).map((n) => ({
+            target: n.target.join(" "),
+            html: n.html.slice(0, 300),
+          })),
+        })),
+        passes: results.passes.length,
+        incomplete: results.incomplete.length,
+      });
+    })
+    .catch(() => {
+      // Audit failures are non-fatal; the preview itself already rendered.
+    });
+}
+
 function handleRender(msg: RenderMessage) {
   try {
     ensureThemeStyle(msg.themeCss);
@@ -134,8 +190,14 @@ function handleRender(msg: RenderMessage) {
         <Component {...msg.props} />
       </Boundary>,
     );
-    // Give Tailwind's runtime a beat to inject utilities before measuring.
-    requestAnimationFrame(() => requestAnimationFrame(reportHeight));
+    // Give Tailwind's runtime a beat to inject utilities before measuring —
+    // axe's color-contrast checks need the final computed styles too.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        reportHeight();
+        setTimeout(runAxe, 120);
+      }),
+    );
   } catch (err) {
     post({ type: "forgeui:error", message: (err as Error).message });
   }
