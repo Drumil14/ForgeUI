@@ -94,6 +94,29 @@ export interface A11yReport {
   };
 }
 
+/** An exportable asset discovered in the file (bitmap image or vector/icon). */
+export interface DesignAsset {
+  nodeId: string;
+  name: string;
+  kind: "image" | "vector";
+  pageName?: string;
+  width?: number;
+  height?: number;
+  /**
+   * Temporary Figma CDN render URL, resolved server-side via the Images API
+   * when a server API key is configured. Absent for fixture imports.
+   */
+  url?: string;
+}
+
+/** What the parser saw — including what it could NOT translate. */
+export interface ParseStats {
+  totalNodes: number;
+  byType: Record<string, number>;
+  /** Features present in the file that ForgeUI does not (fully) translate. */
+  unsupported: Array<{ feature: string; count: number }>;
+}
+
 export interface ParsedDesign {
   fileName: string;
   fileKey: string;
@@ -104,6 +127,8 @@ export interface ParsedDesign {
   pages: Array<{ id: string; name: string; componentIds: string[] }>;
   layerTree: LayerNode[];
   accessibility: A11yReport;
+  assets: DesignAsset[];
+  stats: ParseStats;
 }
 
 export interface LayerNode {

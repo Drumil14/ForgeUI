@@ -5,25 +5,27 @@ import { IconImage } from "@/components/ui/icons";
 import { EmptyState } from "@/components/ui/empty-state";
 
 /**
- * Assets panel. Figma assets (images, icons) would be exported via the
- * /images endpoint in a fuller implementation. Here we surface anything
- * the parser detected as an Image kind, plus icons-from-components.
+ * Assets discovered by the parser: bitmap-filled nodes and vectors/icons.
+ * When the import ran server-side with a Figma API key, each asset carries a
+ * short-lived CDN render URL (PNG for bitmaps, SVG for vectors) from the
+ * Figma Images API; fixture imports show labeled placeholders instead.
  */
 export function AssetsPanel() {
   const { design } = useDesign();
   if (!design) return null;
 
-  const imageAssets = design.components.filter((c) => c.kind === "Image");
-  const iconAssets = design.components.filter((c) => c.kind === "Icon");
-  const hasAny = imageAssets.length + iconAssets.length > 0;
+  const images = design.assets.filter((a) => a.kind === "image");
+  const vectors = design.assets.filter((a) => a.kind === "vector");
+  const hasAny = images.length + vectors.length > 0;
+  const hasUrls = design.assets.some((a) => a.url);
 
   if (!hasAny) {
     return (
       <div className="p-4">
         <EmptyState
           icon={<IconImage className="h-5 w-5" />}
-          title="No image assets"
-          description="This design doesn't reference any bitmap images or standalone icons. Components will still render using inline SVG."
+          title="No exportable assets"
+          description="This design has no bitmap images or standalone vectors. Generated components use inline markup and tokens."
         />
       </div>
     );
@@ -31,22 +33,43 @@ export function AssetsPanel() {
 
   return (
     <div className="space-y-5 p-4">
-      {imageAssets.length > 0 && (
+      {!hasUrls && (
+        <p className="rounded-md border border-border bg-bg-subtle p-2.5 text-[11px] leading-snug text-fg-muted">
+          Previews come from the Figma Images API during a live import (server
+          API key required). This design was loaded from a local fixture, so
+          assets are listed without renders.
+        </p>
+      )}
+
+      {images.length > 0 && (
         <div className="space-y-2">
-          <p className="eyebrow text-fg-subtle">
-            Images · {imageAssets.length}
-          </p>
+          <p className="eyebrow text-fg-subtle">Images · {images.length}</p>
           <div className="grid grid-cols-2 gap-2">
-            {imageAssets.map((a) => (
+            {images.map((a) => (
               <div
-                key={a.id}
+                key={a.nodeId}
                 className="overflow-hidden rounded-md border border-border bg-bg-subtle"
               >
-                <div className="bg-dots flex aspect-square items-center justify-center text-fg-subtle">
-                  <IconImage className="h-5 w-5" />
-                </div>
+                {a.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={a.url}
+                    alt={a.name}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <div className="bg-dots flex aspect-square items-center justify-center text-fg-subtle">
+                    <IconImage className="h-5 w-5" />
+                  </div>
+                )}
                 <div className="border-t border-border p-1.5">
                   <p className="truncate text-[10px] text-fg-muted">{a.name}</p>
+                  {a.width && a.height && (
+                    <p className="font-mono text-[9px] text-fg-subtle">
+                      {Math.round(a.width)}×{Math.round(a.height)}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -54,19 +77,27 @@ export function AssetsPanel() {
         </div>
       )}
 
-      {iconAssets.length > 0 && (
+      {vectors.length > 0 && (
         <div className="space-y-2">
-          <p className="eyebrow text-fg-subtle">
-            Icons · {iconAssets.length}
-          </p>
+          <p className="eyebrow text-fg-subtle">Vectors · {vectors.length}</p>
           <div className="grid grid-cols-4 gap-1.5">
-            {iconAssets.map((a) => (
+            {vectors.map((a) => (
               <div
-                key={a.id}
+                key={a.nodeId}
                 title={a.name}
-                className="flex aspect-square items-center justify-center rounded border border-border bg-bg text-fg-muted"
+                className="flex aspect-square items-center justify-center overflow-hidden rounded border border-border bg-bg p-1 text-fg-muted"
               >
-                <span className="text-[10px]">{a.name.slice(0, 3)}</span>
+                {a.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={a.url}
+                    alt={a.name}
+                    loading="lazy"
+                    className="max-h-full max-w-full"
+                  />
+                ) : (
+                  <span className="text-[10px]">{a.name.slice(0, 3)}</span>
+                )}
               </div>
             ))}
           </div>

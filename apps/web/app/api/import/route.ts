@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FigmaApiError, fetchFigmaFile } from "@/services/figma";
+import { HttpFigmaClient } from "@forgeui/core";
+import { FigmaApiError } from "@/services/figma";
 import { parseFigmaUrl } from "@/utils/figma-url";
 import { parseFigmaFile } from "@/lib/parser";
 
@@ -66,8 +67,30 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const file = await fetchFigmaFile(parsed.fileKey, apiKey);
+    const client = new HttpFigmaClient(apiKey);
+    const file = await client.getFile(parsed.fileKey);
     const design = parseFigmaFile(file, parsed.fileKey);
+
+    // Best-effort asset export via the Figma Images API: bitmaps as PNG,
+    // vectors as SVG. Failures never sink the import — assets just stay
+    // URL-less and the panel explains why. The API key stays server-side;
+    // the returned CDN URLs are short-lived, unauthenticated renders.
+    try {
+      const images = design.assets.filter((a) => a.kind === "image");
+      const vectors = design.assets.filter((a) => a.kind === "vector");
+      const [pngUrls, svgUrls] = await Promise.all([
+        client.getImageUrls(parsed.fileKey, images.map((a) => a.nodeId), "png"),
+        client.getImageUrls(parsed.fileKey, vectors.map((a) => a.nodeId), "svg"),
+      ]);
+      for (const asset of design.assets) {
+        const url =
+          asset.kind === "image" ? pngUrls[asset.nodeId] : svgUrls[asset.nodeId];
+        if (url) asset.url = url;
+      }
+    } catch {
+      // Asset rendering is optional; the import result is complete without it.
+    }
+
     return NextResponse.json(design);
   } catch (err) {
     if (err instanceof FigmaApiError) {

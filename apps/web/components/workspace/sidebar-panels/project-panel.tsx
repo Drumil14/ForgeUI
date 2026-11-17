@@ -26,7 +26,7 @@ export function ProjectPanel() {
     { label: "Colors", value: design.tokens.colors.length },
     { label: "Typography", value: design.tokens.typography.length },
     { label: "Spacing", value: design.tokens.spacing.length },
-    { label: "Radii", value: design.tokens.radii.length },
+    { label: "Nodes", value: design.stats.totalNodes },
   ];
 
   return (
@@ -71,6 +71,27 @@ export function ProjectPanel() {
           ))}
         </dl>
       </div>
+
+      {design.stats.unsupported.length > 0 && (
+        <div className="space-y-2">
+          <p className="eyebrow text-fg-subtle">Not translated</p>
+          <p className="text-[11px] leading-snug text-fg-subtle">
+            Features in this file ForgeUI doesn&apos;t (fully) convert to code —
+            reported here rather than silently dropped.
+          </p>
+          <ul className="space-y-1">
+            {design.stats.unsupported.map((u) => (
+              <li
+                key={u.feature}
+                className="flex items-start justify-between gap-2 rounded border border-border bg-bg px-2.5 py-1.5 text-[11px] text-fg-muted"
+              >
+                <span>{u.feature}</span>
+                <span className="font-mono text-fg-subtle">{u.count}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

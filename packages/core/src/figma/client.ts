@@ -8,6 +8,16 @@ import type { FigmaFileResponse } from "./types.js";
  */
 export interface FigmaClient {
   getFile(fileKey: string): Promise<FigmaFileResponse>;
+  /**
+   * Resolve render URLs for specific nodes via the Figma Images API.
+   * Returns a map of nodeId → temporary CDN URL (entries may be missing when
+   * Figma cannot render a node). Fixture clients return an empty map.
+   */
+  getImageUrls(
+    fileKey: string,
+    nodeIds: string[],
+    format?: "png" | "svg",
+  ): Promise<Record<string, string>>;
 }
 
 export class FigmaApiError extends Error {
@@ -34,27 +44,42 @@ export class HttpFigmaClient implements FigmaClient {
   constructor(
     private readonly apiKey: string,
     private readonly baseUrl = "https://api.figma.com",
+    /** Abort slow Figma responses after this long (large files can be slow). */
+    private readonly timeoutMs = 30_000,
   ) {}
 
-  async getFile(fileKey: string): Promise<FigmaFileResponse> {
+  private async request(path: string): Promise<Response> {
     if (!this.apiKey) {
       throw new FigmaApiError(
         "FIGMA_API_KEY is not set. Add it to your environment to enable live imports.",
         "auth",
       );
     }
-
-    let res: Response;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      res = await fetch(`${this.baseUrl}/v1/files/${fileKey}`, {
+      return await fetch(`${this.baseUrl}${path}`, {
         headers: { "X-Figma-Token": this.apiKey },
+        signal: controller.signal,
       });
-    } catch {
+    } catch (err) {
+      if ((err as Error).name === "AbortError") {
+        throw new FigmaApiError(
+          `Figma did not respond within ${this.timeoutMs / 1000}s — the file may be very large. Try again, or import a smaller file.`,
+          "network",
+        );
+      }
       throw new FigmaApiError(
         "Could not reach api.figma.com. Check your network connection.",
         "network",
       );
+    } finally {
+      clearTimeout(timer);
     }
+  }
+
+  async getFile(fileKey: string): Promise<FigmaFileResponse> {
+    const res = await this.request(`/v1/files/${fileKey}`);
 
     if (res.status === 403 || res.status === 401) {
       throw new FigmaApiError(
@@ -86,6 +111,31 @@ export class HttpFigmaClient implements FigmaClient {
     }
 
     return (await res.json()) as FigmaFileResponse;
+  }
+
+  async getImageUrls(
+    fileKey: string,
+    nodeIds: string[],
+    format: "png" | "svg" = "png",
+  ): Promise<Record<string, string>> {
+    if (nodeIds.length === 0) return {};
+    const ids = encodeURIComponent(nodeIds.join(","));
+    const res = await this.request(
+      `/v1/images/${fileKey}?ids=${ids}&format=${format}`,
+    );
+    if (!res.ok) {
+      // Asset export is best-effort — a failure should never sink the import.
+      return {};
+    }
+    const data = (await res.json()) as {
+      err?: string | null;
+      images?: Record<string, string | null>;
+    };
+    const out: Record<string, string> = {};
+    for (const [id, url] of Object.entries(data.images ?? {})) {
+      if (url) out[id] = url;
+    }
+    return out;
   }
 }
 
@@ -133,6 +183,10 @@ export class FixtureFigmaClient implements FigmaClient {
       `No fixture registered for file key "${fileKey}".`,
       "not_found",
     );
+  }
+
+  async getImageUrls(): Promise<Record<string, string>> {
+    return {}; // fixtures carry no CDN assets
   }
 }
 

@@ -46,7 +46,7 @@ const STEPS: Step[] = [
     title: "Export and ship",
     description:
       "Copy a single component, download the whole library, or grab just the tokens. Drop it into Next.js, Remix, Astro — anywhere React goes.",
-    code: "downloadLibrary(design) → forgeui.tsx",
+    code: "exportLibraryFiles(design) → library.zip",
   },
 ];
 

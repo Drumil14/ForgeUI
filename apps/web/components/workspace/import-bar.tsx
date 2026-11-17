@@ -10,7 +10,7 @@ import { cn } from "@/utils/cn";
 
 export function ImportBar() {
   const { isLoading, error, design } = useDesign();
-  const { importFile } = useFigmaImport();
+  const { importFile, cancelImport } = useFigmaImport();
   const [url, setUrl] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -68,6 +68,16 @@ export function ImportBar() {
         >
           {design ? "Reimport" : "Import"}
         </Button>
+        {isLoading && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={cancelImport}
+          >
+            Cancel
+          </Button>
+        )}
       </div>
       {message && (
         <p

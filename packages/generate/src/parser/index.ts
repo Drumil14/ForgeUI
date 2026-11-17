@@ -2,8 +2,10 @@ import type { FigmaFileResponse, FigmaNode } from "@forgeui/core/browser";
 import { extractTokens } from "@forgeui/core/browser";
 import type {
   ComponentKind,
+  DesignAsset,
   GeneratedComponent,
   ParsedDesign,
+  ParseStats,
 } from "../types.js";
 import { classifyComponentDetailed } from "./classify-component.js";
 import { buildLayerTree } from "./build-layer-tree.js";
@@ -84,6 +86,87 @@ function finalizeNames(candidates: Candidate[]): string[] {
   });
 }
 
+const MAX_ASSETS = 40;
+
+/**
+ * One pass over the whole tree: node counts by type, exportable assets
+ * (bitmap-filled nodes and vectors/icons), and features ForgeUI doesn't
+ * translate — reported, never silently dropped.
+ */
+function collectStatsAndAssets(
+  document: FigmaNode,
+): { stats: ParseStats; assets: DesignAsset[] } {
+  const byType: Record<string, number> = {};
+  const unsupported = new Map<string, number>();
+  const assets: DesignAsset[] = [];
+  let totalNodes = 0;
+
+  const bump = (feature: string) =>
+    unsupported.set(feature, (unsupported.get(feature) ?? 0) + 1);
+
+  const walk = (node: FigmaNode, pageName?: string) => {
+    totalNodes += 1;
+    byType[node.type] = (byType[node.type] ?? 0) + 1;
+
+    for (const fill of node.fills ?? []) {
+      if (fill.visible === false) continue;
+      if (fill.type === "IMAGE") {
+        bump("image fills (exported as assets; rendered as labeled placeholders)");
+        if (assets.length < MAX_ASSETS) {
+          assets.push({
+            nodeId: node.id,
+            name: node.name,
+            kind: "image",
+            pageName,
+            width: node.absoluteBoundingBox?.width,
+            height: node.absoluteBoundingBox?.height,
+          });
+        }
+      } else if (fill.type.startsWith("GRADIENT_")) {
+        bump("gradient fills (flattened to the nearest solid token)");
+      }
+    }
+
+    if (node.type === "VECTOR" || node.type === "BOOLEAN_OPERATION") {
+      if (assets.length < MAX_ASSETS) {
+        assets.push({
+          nodeId: node.id,
+          name: node.name,
+          kind: "vector",
+          pageName,
+          width: node.absoluteBoundingBox?.width,
+          height: node.absoluteBoundingBox?.height,
+        });
+      }
+    }
+
+    for (const effect of node.effects ?? []) {
+      if (effect.visible === false) continue;
+      if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") {
+        bump("blur effects");
+      }
+      if (effect.type === "INNER_SHADOW") bump("inner shadows");
+    }
+    if (node.type === "SLICE") bump("slices");
+
+    const nextPage = node.type === "CANVAS" ? node.name : pageName;
+    for (const child of node.children ?? []) walk(child, nextPage);
+  };
+  walk(document);
+
+  return {
+    stats: {
+      totalNodes,
+      byType,
+      unsupported: Array.from(unsupported, ([feature, count]) => ({
+        feature,
+        count,
+      })).sort((a, b) => b.count - a.count),
+    },
+    assets,
+  };
+}
+
 function buildPages(
   file: FigmaFileResponse,
   components: GeneratedComponent[],
@@ -158,6 +241,9 @@ export function parseFigmaFile(
   // 7. Accessibility audit.
   const accessibility = analyzeAccessibility(components, tokens);
 
+  // 8. Stats + exportable assets (with unsupported-feature reporting).
+  const { stats, assets } = collectStatsAndAssets(file.document);
+
   return {
     fileName: file.name,
     fileKey,
@@ -167,5 +253,7 @@ export function parseFigmaFile(
     pages,
     layerTree,
     accessibility,
+    assets,
+    stats,
   };
 }
