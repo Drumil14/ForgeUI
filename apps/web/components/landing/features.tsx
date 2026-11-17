@@ -70,7 +70,7 @@ export function Features() {
             Everything you need between Figma and main.
           </h2>
           <p className="mt-4 text-pretty text-fg-muted">
-            ForgeUI doesn't try to replace designers or engineers. It removes
+            ForgeUI doesn&apos;t try to replace designers or engineers. It removes
             the busywork between them — the part where a perfect Figma file
             becomes a slightly-off implementation.
           </p>

@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Everything here runs from committed fixtures — no Figma credentials are
+# needed or used. Playwright drives the browser-based verify tests against
+# the committed demo page (file:// URL), so runs are deterministic.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Typecheck · lint · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Lint (web app)
+        run: npm run lint --workspace apps/web
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Unit + integration + CLI/browser tests
+        run: npm test
+
+      - name: Build packages + web app
+        run: npm run build
+
+      - name: Verify budget gate (demo fixture)
+        # Dogfood the CI integration documented in the README: run the real
+        # verify engine over the committed drifted demo page and prove the
+        # budget flag produces the right exit codes.
+        run: |
+          node packages/cli/bin/forgeui.mjs verify \
+            "file://$PWD/fixtures/demo/index.html" \
+            --file sample-marketing --budget 50 --out /tmp/verify-pass
+          if node packages/cli/bin/forgeui.mjs verify \
+            "file://$PWD/fixtures/demo/index.html" \
+            --file sample-marketing --budget 0 --out /tmp/verify-fail; then
+            echo "expected the zero-budget run to fail" && exit 1
+          else
+            echo "budget gate failed the drifted page as expected"
+          fi

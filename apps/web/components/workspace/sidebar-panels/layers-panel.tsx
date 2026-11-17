@@ -1,9 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useDesign } from "@/hooks/use-design";
 import { IconChevronDown, IconChevronRight } from "@/components/ui/icons";
-import { cn } from "@/utils/cn";
 import type { LayerNode } from "@/types";
 
 function LayerRow({ layer, depth = 0 }: { layer: LayerNode; depth?: number }) {

@@ -170,7 +170,6 @@ export function ReportViewer({ report }: { report: VerifyReport }) {
               className="scrollbar-thin relative max-h-[640px] overflow-auto rounded-md border border-border bg-bg-elevated"
             >
               <div className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={art.screenshotDataUrl!}
                   alt={`Full-page screenshot of ${report.url}`}

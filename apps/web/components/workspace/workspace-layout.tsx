@@ -101,12 +101,18 @@ export function WorkspaceLayout() {
   useWorkspaceShortcuts();
 
   useEffect(() => {
+    // SSR hydration guard + one-time localStorage sync: the server renders
+    // the desktop layout with default widths; the first client render must
+    // re-sync from storage exactly once.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
       if (typeof saved.sidebar === "number")
+         
         setSidebarW(clamp(saved.sidebar, SIDEBAR.min, SIDEBAR.max));
       if (typeof saved.inspector === "number")
+         
         setInspectorW(clamp(saved.inspector, INSPECTOR.min, INSPECTOR.max));
     } catch {
       // Corrupt storage — fall back to defaults.

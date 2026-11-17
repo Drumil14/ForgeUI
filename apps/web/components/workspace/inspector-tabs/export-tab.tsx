@@ -37,38 +37,6 @@ interface ActionRowProps {
   secondary?: { label: string; onClick: () => void; copiedLabel?: string };
 }
 
-function CopyAction({
-  label,
-  onClick,
-  copiedLabel = "Copied",
-}: {
-  label: string;
-  onClick: () => boolean;
-  copiedLabel?: string;
-}) {
-  const { copied, copy } = useCopy();
-  return (
-    <Button
-      variant="secondary"
-      size="sm"
-      onClick={() => {
-        copy("");
-        onClick();
-        copy("done");
-      }}
-      iconLeft={
-        copied ? (
-          <IconCheck className="h-3.5 w-3.5 text-success" />
-        ) : (
-          <IconCopy className="h-3.5 w-3.5" />
-        )
-      }
-    >
-      {copied ? copiedLabel : label}
-    </Button>
-  );
-}
-
 function ActionRow({ title, description, icon, primary, secondary }: ActionRowProps) {
   return (
     <div className="flex items-start gap-3 rounded-md border border-border bg-bg p-3">

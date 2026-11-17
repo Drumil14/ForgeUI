@@ -51,7 +51,6 @@ export function AssetsPanel() {
                 className="overflow-hidden rounded-md border border-border bg-bg-subtle"
               >
                 {a.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={a.url}
                     alt={a.name}
@@ -88,7 +87,6 @@ export function AssetsPanel() {
                 className="flex aspect-square items-center justify-center overflow-hidden rounded border border-border bg-bg p-1 text-fg-muted"
               >
                 {a.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={a.url}
                     alt={a.name}

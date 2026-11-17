@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useDesign } from "@/hooks/use-design";
 import { useCopy } from "@/hooks/use-copy";
 import { IconCheck, IconCopy } from "@/components/ui/icons";
 import { weightToTailwind } from "@/utils/tailwind-map";
-import { cn } from "@/utils/cn";
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const { copied, copy } = useCopy();
@@ -34,7 +33,7 @@ export function TokensPanel() {
       {/* Colors */}
       <section className="space-y-2">
         <p className="eyebrow text-fg-subtle">
-          Colors · {tokens.colors.length}
+          Colors Â· {tokens.colors.length}
         </p>
         <ul className="space-y-1">
           {tokens.colors.map((c) => (
@@ -64,7 +63,7 @@ export function TokensPanel() {
       {/* Typography */}
       <section className="space-y-2">
         <p className="eyebrow text-fg-subtle">
-          Typography · {tokens.typography.length}
+          Typography Â· {tokens.typography.length}
         </p>
         <ul className="space-y-1.5">
           {tokens.typography.map((t) => (
@@ -77,7 +76,7 @@ export function TokensPanel() {
                   {t.name}
                 </p>
                 <p className="font-mono text-[10px] text-fg-subtle">
-                  {Math.round(t.fontSize)}px · {weightToTailwind(t.fontWeight)} · {t.fontFamily}
+                  {Math.round(t.fontSize)}px Â· {weightToTailwind(t.fontWeight)} Â· {t.fontFamily}
                 </p>
               </div>
               <CopyButton
@@ -92,14 +91,14 @@ export function TokensPanel() {
       {/* Spacing */}
       <section className="space-y-2">
         <p className="eyebrow text-fg-subtle">
-          Spacing · {tokens.spacing.length}
+          Spacing Â· {tokens.spacing.length}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {tokens.spacing.map((s) => (
             <span
               key={s.name}
               className="inline-flex items-center gap-1.5 rounded border border-border bg-bg px-2 py-1 font-mono text-[10px] text-fg-muted"
-              title={`Used ${s.usage}× in the design`}
+              title={`Used ${s.usage}Ã— in the design`}
             >
               <span className="text-fg-subtle">{s.name}</span>
               <span className="text-fg">{Math.round(s.value)}px</span>
@@ -112,7 +111,7 @@ export function TokensPanel() {
       {tokens.radii.length > 0 && (
         <section className="space-y-2">
           <p className="eyebrow text-fg-subtle">
-            Border radius · {tokens.radii.length}
+            Border radius Â· {tokens.radii.length}
           </p>
           <div className="grid grid-cols-2 gap-1.5">
             {tokens.radii.map((r) => (
@@ -141,7 +140,7 @@ export function TokensPanel() {
       {tokens.shadows.length > 0 && (
         <section className="space-y-2">
           <p className="eyebrow text-fg-subtle">
-            Shadows · {tokens.shadows.length}
+            Shadows Â· {tokens.shadows.length}
           </p>
           <ul className="space-y-1.5">
             {tokens.shadows.map((s) => (

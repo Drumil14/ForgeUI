@@ -21,6 +21,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b packages/core packages/generate packages/verify packages/cli",
+    "lint": "npm run lint --workspace apps/web",
     "clean": "tsc -b --clean packages/core packages/generate packages/verify packages/cli",
     "forgeui": "node packages/cli/bin/forgeui.mjs",
     "web": "npm run dev --workspace apps/web"

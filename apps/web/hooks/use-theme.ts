@@ -17,12 +17,17 @@ export function useTheme() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // SSR hydration guard: the server can't know the stored/OS theme, so the
+    // first client render must re-sync state once. This is the sanctioned
+    // place for that one-time sync even though the rule dislikes it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",
     ).matches;
     const initial = stored ?? (prefersDark ? "dark" : "light");
+     
     setTheme(initial);
     document.documentElement.classList.toggle("dark", initial === "dark");
   }, []);

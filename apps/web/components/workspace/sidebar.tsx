@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useDesign } from "@/hooks/use-design";
 import {
-  IconAccessibility,
   IconBox,
   IconFile,
   IconFolder,
